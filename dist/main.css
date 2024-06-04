@@ -1,0 +1,292 @@
+/*!*************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].use[1]!./node_modules/sass-loader/dist/cjs.js!./src/index.scss ***!
+  \*************************************************************************************************************************************/
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body {
+  line-height: 1;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: "";
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.instructionModal {
+  height: 113vh;
+  width: 100vw;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  transition: 800ms;
+  margin-top: -100vh;
+}
+
+.instructions {
+  display: flex;
+  justify-content: center;
+  height: 10vh;
+  width: 100vw;
+  margin-top: 5rem;
+  margin-left: 0rem;
+}
+
+.instructions div {
+  border: solid 1px;
+  color: aliceblue;
+  border-color: aliceblue;
+  border-radius: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  margin: 100px;
+  width: 39vw;
+}
+
+p {
+  margin: 30px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.noDataModal {
+  height: 113vh;
+  width: 100vw;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: end;
+  transition: 800ms;
+  top: 0%;
+}
+
+.noData {
+  display: flex;
+  justify-content: end;
+  height: 10vh;
+  width: 100vw;
+  margin-top: 7rem;
+  margin-left: 0rem;
+  position: absolute;
+  left: -13%;
+}
+
+.noData div {
+  border: solid 1px;
+  color: aliceblue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.noData div p {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.main-nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  height: 5vh;
+  width: 100vw;
+  position: fixed;
+}
+
+#linkedIn, #github, #portfolio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 5%;
+}
+
+a {
+  height: 50%;
+  width: 100%;
+}
+
+i {
+  color: aliceblue;
+  font-size: 30px;
+  height: 100%;
+  width: 5%;
+  transition: all 0.25s ease-in-out;
+}
+
+i:hover {
+  color: rgb(188, 224, 255);
+  transform: translateY(-2px);
+}
+
+.fix-globe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 10%;
+  margin-right: 3%;
+  margin-top: 0.6%;
+}
+
+.fix-globe-button {
+  background-color: aliceblue;
+  height: 65%;
+  width: 100%;
+  border-radius: 5px;
+  font-size: 17px;
+  font-weight: 900;
+  border: none;
+  align-content: center;
+  transition: all 0.25s ease-in-out;
+  cursor: pointer;
+}
+
+.fix-globe-button:hover {
+  background-color: rgb(188, 224, 255);
+  transform: translateY(-2px);
+}
+
+#current {
+  position: absolute;
+  color: rgb(255, 255, 255);
+  font-family: sans-serif;
+  margin-left: 4%;
+  margin-top: 4%;
+}
+
+.title-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.title {
+  color: aliceblue;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  margin: 50px 0px 20px 0px;
+  font-size: 50px;
+}
+
+.instructions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 40px;
+  height: 20px;
+}
+
+p {
+  color: aliceblue;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  margin: 50px;
+  font-size: 20px;
+}
+
+.country-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.country {
+  color: aliceblue;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  margin: 50px;
+  font-size: 20px;
+}
+
+.cover {
+  position: absolute;
+  top: 0;
+  background-color: black;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+.globe-container {
+  display: flex;
+  justify-content: center;
+}
+
+.modalContainer {
+  height: 1px;
+  width: 75vw;
+  top: 0;
+  display: fixed;
+  justify-content: center;
+  margin: auto;
+}
+
+#chart {
+  position: absolute;
+  top: 20%;
+  height: 100%;
+  width: 50%;
+  background-color: rgba(51, 61, 71, 0.9);
+  border-radius: 20px;
+  transition: 300ms ease-in-out;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  background-image: url("https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8MXx8fGVufDB8fHx8&w=1000&q=80");
+}

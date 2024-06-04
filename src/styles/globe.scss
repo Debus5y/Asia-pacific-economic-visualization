@@ -1,0 +1,42 @@
+
+.cover {
+  position: absolute;
+  top: 0;
+  // height: 100vh;
+  // width: 100vw;
+  background-color: black;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+.globe-container {
+  display: flex;
+  justify-content: center;
+}
+
+.modalContainer{
+
+  height: 1px;
+  width: 75vw;
+  top: 0;
+  display: fixed;
+  justify-content: center;
+  margin: auto;
+  // transition: 300ms;
+}
+
+#chart {
+  position: absolute;
+  top: 20%;
+  height: 100%;
+  width: 50%;
+  background-color: rgba(51, 61, 71, 0.9);
+  border-radius: 20px;
+  transition: 300ms ease-in-out;
+  
+}
+
+
