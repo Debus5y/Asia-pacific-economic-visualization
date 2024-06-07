@@ -396,64 +396,108 @@
         <div class="col-lg-6">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Pie Chart</h5>
-
+              <h5 class="card-title">Japan Export Categories Pie Chart <span id="selectedYear">| 2020</span></h5>
+      
               <!-- Pie Chart -->
-              <div id="pieChart"></div>
-
+              <div class="chart-container">
+                <select class="year-selector" id="yearSelector">
+                  <!-- 从1990年到2024年的年份选项 -->
+                  <script>
+                    for (let year = 1990; year <= 2024; year++) {
+                      document.write('<option value="' + year + '">' + year + '</option>');
+                    }
+                  </script>
+                </select>
+                <div id="pieChart" style="min-height: 400px;" class="echart"></div>
+              </div>
+      
               <script>
                 document.addEventListener("DOMContentLoaded", () => {
-                  Papa.parse("../../data/trade/trade.csv", {
-                    download: true,
-                    header: true,
-                    complete: function (results) {
-                      const data = results.data;
-
-                      // 过滤出日本的数据
-                      const japanData = data.filter(item => item["Country Name"] === "Japan");
-
-                      // 初始化每隔10年的数据容器
-                      const interval = 10;
-                      const tradeDataByDecade = {};
-
-                      // 对数据按年份进行处理，计算每隔10年的平均值
-                      japanData.forEach(item => {
-                        const year = parseInt(item["Year"]);
-                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
-                        const decade = Math.floor(year / interval) * interval;
-
-                        if (!tradeDataByDecade[decade]) {
-                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                  const fetchAndRenderData = (year) => {
+                    Papa.parse("../../data/trade/trade.csv", {
+                      download: true,
+                      header: true,
+                      complete: function (results) {
+                        const data = results.data;
+      
+                        // 过滤出日本的数据
+                        const japanData = data.filter(item => item["Country Name"] === "Japan" && item["Year"] === year);
+      
+                        if (japanData.length === 0) {
+                          alert("No data available for the selected year.");
+                          return;
                         }
-                        tradeDataByDecade[decade].sum += value;
-                        tradeDataByDecade[decade].count += 1;
-                      });
-
-                      const categories = [];
-                      const values = [];
-
-                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
-                        categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
-                        values.push(sum / count);
+      
+                        // 简化后的类别名称
+                        const simplifiedCategories = [
+                          "Agricultural raw materials",
+                          "Food",
+                          "Fuel",
+                          "Ores and metals",
+                          "High-technology"
+                        ];
+      
+                        // 对应的原始列名称
+                        const importCategories = [
+                          "average_value_Agricultural raw materials exports (% of merchandise exports)",
+                          "average_value_Food exports (% of merchandise exports)",
+                          "average_value_Fuel exports (% of merchandise exports)",
+                          "average_value_Ores and metals exports (% of merchandise exports)",
+                          "average_value_High-technology exports (% of manufactured exports)"
+                        ];
+      
+                        const values = importCategories.map(category => parseFloat(japanData[0][category]));
+      
+                        // 绘制饼图
+                        echarts.init(document.querySelector("#pieChart")).setOption({
+                          title: {
+                            text: `Japan Import Categories in ${year}`,
+                            subtext: 'Based on merchandise exports',
+                            left: 'center'
+                          },
+                          tooltip: {
+                            trigger: 'item'
+                          },
+                          legend: {
+                            orient: 'vertical',
+                            left: 'left'
+                          },
+                          series: [
+                            {
+                              name: 'Import Category',
+                              type: 'pie',
+                              radius: '50%',
+                              data: simplifiedCategories.map((category, index) => ({
+                                value: values[index],
+                                name: category
+                              })),
+                              emphasis: {
+                                itemStyle: {
+                                  shadowBlur: 10,
+                                  shadowOffsetX: 0,
+                                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                              }
+                            }
+                          ]
+                        });
                       }
-
-                      new ApexCharts(document.querySelector("#pieChart"), {
-                        series: values,
-                        chart: {
-                          height: 350,
-                          type: 'pie',
-                          toolbar: {
-                            show: true
-                          }
-                        },
-                        labels: categories
-                      }).render();
-                    }
+                    });
+                  };
+      
+                  // 初始获取和渲染默认年份的数据
+                  fetchAndRenderData("2020");
+      
+                  // 年份选择器的事件监听器
+                  document.getElementById("yearSelector").addEventListener("change", (event) => {
+                    const selectedYear = event.target.value;
+                    fetchAndRenderData(selectedYear);
+                    document.getElementById("selectedYear").innerText = `| ${selectedYear}`;
                   });
                 });
               </script>
               <!-- End Pie Chart -->
-
+      
             </div>
           </div>
         </div>
