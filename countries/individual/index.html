@@ -1255,10 +1255,14 @@
 
                         // 过滤出日本的数据
                         const japanData = data.filter(item => item["Country Name"] === "Japan");
-
+                        //对年份排序
+                        const importTradeData = japanData.map(item => ({
+                          year: item["Year"],
+                          value: parseFloat(item["average_value_Merchandise imports (current US$)"])
+                        })).sort((a, b) => a.year - b.year);
                         // 提取年份和进口贸易总额
-                        const years = japanData.map(item => item["Year"]);
-                        const importTradeValues = japanData.map(item => parseFloat(item["average_value_Merchandise imports (current US$)"]));
+                        const years = importTradeData.map(item => item.year);
+                        const importTradeValues = importTradeData.map(item => item.value);
 
                         // 创建折线图
                         new ApexCharts(document.querySelector("#japanImportTradeChart"), {
