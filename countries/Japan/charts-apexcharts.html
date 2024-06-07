@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Dashboard - NiceAdmin Bootstrap Template</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+
+  <!-- PapaParse CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+  <!-- ApexCharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: NiceAdmin - v2.2.2
+  
+  
+  
+  ======================================================== -->
+</head>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top d-flex align-items-center">
+
+    <div class="d-flex align-items-center justify-content-between">
+      <a href="../../index.html" class="logo d-flex align-items-center">
+        <img src="assets/img/logo.png" alt="">
+        <span class="d-none d-lg-block">NiceAdmin</span>
+      </a>
+
+    </div><!-- End Logo -->
+
+  </header><!-- End Header -->
+  <main id="main" class="main">
+    <section class="section">
+      <div class="row">
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Line Chart</h5>
+
+              <!-- Line Chart -->
+              <div id="lineChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 对年份排序
+                      const importTradeData = japanData.map(item => ({
+                        year: parseInt(item["Year"]),
+                        value: parseFloat(item["average_value_Merchandise imports (current US$)"])
+                      })).sort((a, b) => a.year - b.year);
+
+                      // 提取年份和进口贸易总额
+                      const years = importTradeData.map(item => item.year);
+                      const importTradeValues = importTradeData.map(item => item.value);
+
+                      // 处理每隔十年的年份
+                      const decadeYears = years.filter((year, index) => index % 10 === 0);
+
+                      new ApexCharts(document.querySelector("#lineChart"), {
+                        series: [{
+                          name: "Import Trade",
+                          data: importTradeValues
+                        }],
+                        chart: {
+                          height: 350,
+                          type: 'line',
+                          zoom: {
+                            enabled: false
+                          }
+                        },
+                        dataLabels: {
+                          enabled: false
+                        },
+                        stroke: {
+                          curve: 'straight'
+                        },
+                        grid: {
+                          row: {
+                            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                            opacity: 0.5
+                          },
+                        },
+                        xaxis: {
+                          categories: years,
+                          labels: {
+                            formatter: function (value, timestamp, index) {
+                              // 只显示每十年的年份标签
+                              return decadeYears.includes(value) ? value : '';
+                            }
+                          },
+                          title: {
+                            text: 'Year'
+                          }
+                        },
+                        yaxis: {
+                          title: {
+                            text: 'Import Trade (US$)'
+                          }
+                        },
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+
+              <!-- End Line Chart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Area Chart</h5>
+
+              <!-- Area Chart -->
+              <div id="areaChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+                      // 对年份排序
+                      const importTradeData = japanData.map(item => ({
+                        year: item["Year"],
+                        value: parseFloat(item["average_value_Merchandise imports (current US$)"])
+                      })).sort((a, b) => a.year - b.year);
+                      // 提取年份和进口贸易总额
+                      const years = importTradeData.map(item => item.year);
+                      const importTradeValues = importTradeData.map(item => item.value);
+
+                      new ApexCharts(document.querySelector("#areaChart"), {
+                        series: [{
+                          name: "Import Trade",
+                          data: importTradeValues
+                        }],
+                        chart: {
+                          type: 'area',
+                          height: 350,
+                          zoom: {
+                            enabled: false
+                          }
+                        },
+                        dataLabels: {
+                          enabled: false
+                        },
+                        stroke: {
+                          curve: 'straight'
+                        },
+                        subtitle: {
+                          text: 'Price Movements',
+                          align: 'left'
+                        },
+                        labels: years,
+                        xaxis: {
+                          type: 'datetime',
+                          categories: years,
+                          title: {
+                            text: 'Year'
+                          }
+                        },
+                        yaxis: {
+                          title: {
+                            text: 'Import Trade (US$)'
+                          }
+                        },
+                        legend: {
+                          horizontalAlign: 'left'
+                        }
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              <!-- End Area Chart -->
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Column Chart</h5>
+
+              <!-- Column Chart -->
+              <div id="columnChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+              
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+                      
+                      // 对年份排序
+                      const importTradeData = japanData.map(item => ({
+                        year: parseInt(item["Year"]),
+                        value: parseFloat(item["average_value_Merchandise imports (current US$)"])
+                      })).sort((a, b) => a.year - b.year);
+              
+                      // 提取年份和进口贸易总额
+                      const years = importTradeData.map(item => item.year);
+                      const importTradeValues = importTradeData.map(item => item.value);
+              
+                      // 处理每隔十年的年份
+                      const decadeYears = years.filter((year, index) => index % 10 === 0);
+              
+                      new ApexCharts(document.querySelector("#columnChart"), {
+                        series: [{
+                          name: "Import Trade",
+                          data: importTradeValues
+                        }],
+                        chart: {
+                          type: 'bar',
+                          height: 350
+                        },
+                        plotOptions: {
+                          bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                          },
+                        },
+                        dataLabels: {
+                          enabled: false
+                        },
+                        stroke: {
+                          show: true,
+                          width: 2,
+                          colors: ['transparent']
+                        },
+                        xaxis: {
+                          categories: years,
+                          labels: {
+                            formatter: function (value, timestamp, index) {
+                              // 只显示每十年的年份标签
+                              return decadeYears.includes(value) ? value : '';
+                            }
+                          },
+                          title: {
+                            text: 'Year'
+                          }
+                        },
+                        yaxis: {
+                          title: {
+                            text: 'Import Trade (US$)'
+                          }
+                        },
+                        fill: {
+                          opacity: 1
+                        },
+                        tooltip: {
+                          y: {
+                            formatter: function (val) {
+                              return "$ " + val;
+                            }
+                          }
+                        }
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              
+              <!-- End Column Chart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Bar Chart</h5>
+
+              <!-- Bar Chart -->
+              <div id="barChart"></div>
+
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 初始化每隔10年的数据容器
+                      const interval = 10;
+                      const tradeDataByDecade = {};
+
+                      // 对数据按年份进行处理，计算每隔10年的平均值
+                      japanData.forEach(item => {
+                        const year = parseInt(item["Year"]);
+                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                        const decade = Math.floor(year / interval) * interval;
+
+                        if (!tradeDataByDecade[decade]) {
+                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                        }
+                        tradeDataByDecade[decade].sum += value;
+                        tradeDataByDecade[decade].count += 1;
+                      });
+
+                      const categories = [];
+                      const values = [];
+
+                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
+                        categories.push(decade);
+                        values.push(sum / count);
+                      }
+
+                      new ApexCharts(document.querySelector("#barChart"), {
+                        series: [{
+                          data: values
+                        }],
+                        chart: {
+                          type: 'bar',
+                          height: 350
+                        },
+                        plotOptions: {
+                          bar: {
+                            borderRadius: 4,
+                            horizontal: true,
+                          }
+                        },
+                        dataLabels: {
+                          enabled: false
+                        },
+                        xaxis: {
+                          categories: categories,
+                          title: {
+                            text: 'Decades'
+                          }
+                        },
+                        yaxis: {
+                          title: {
+                            text: 'Average Import Trade (US$)'
+                          }
+                        }
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              <!-- End Bar Chart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Pie Chart</h5>
+
+              <!-- Pie Chart -->
+              <div id="pieChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 初始化每隔10年的数据容器
+                      const interval = 10;
+                      const tradeDataByDecade = {};
+
+                      // 对数据按年份进行处理，计算每隔10年的平均值
+                      japanData.forEach(item => {
+                        const year = parseInt(item["Year"]);
+                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                        const decade = Math.floor(year / interval) * interval;
+
+                        if (!tradeDataByDecade[decade]) {
+                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                        }
+                        tradeDataByDecade[decade].sum += value;
+                        tradeDataByDecade[decade].count += 1;
+                      });
+
+                      const categories = [];
+                      const values = [];
+
+                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
+                        categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
+                        values.push(sum / count);
+                      }
+
+                      new ApexCharts(document.querySelector("#pieChart"), {
+                        series: values,
+                        chart: {
+                          height: 350,
+                          type: 'pie',
+                          toolbar: {
+                            show: true
+                          }
+                        },
+                        labels: categories
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              <!-- End Pie Chart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Donut Chart</h5>
+
+              <!-- Donut Chart -->
+              <div id="donutChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 初始化每隔10年的数据容器
+                      const interval = 10;
+                      const tradeDataByDecade = {};
+
+                      // 对数据按年份进行处理，计算每隔10年的平均值
+                      japanData.forEach(item => {
+                        const year = parseInt(item["Year"]);
+                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                        const decade = Math.floor(year / interval) * interval;
+
+                        if (!tradeDataByDecade[decade]) {
+                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                        }
+                        tradeDataByDecade[decade].sum += value;
+                        tradeDataByDecade[decade].count += 1;
+                      });
+
+                      const categories = [];
+                      const values = [];
+
+                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
+                        categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
+                        values.push(sum / count);
+                      }
+
+                      new ApexCharts(document.querySelector("#donutChart"), {
+                        series: values,
+                        chart: {
+                          height: 350,
+                          type: 'donut',
+                          toolbar: {
+                            show: true
+                          }
+                        },
+                        labels: categories
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              <!-- End Donut Chart -->
+              <!-- End Donut Chart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Radar Chart</h5>
+
+              <!-- Radar Chart -->
+              <div id="radarChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 初始化每隔10年的数据容器
+                      const interval = 10;
+                      const tradeDataByDecade = {};
+
+                      // 对数据按年份进行处理，计算每隔10年的平均值
+                      japanData.forEach(item => {
+                        const year = parseInt(item["Year"]);
+                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                        const decade = Math.floor(year / interval) * interval;
+
+                        if (!tradeDataByDecade[decade]) {
+                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                        }
+                        tradeDataByDecade[decade].sum += value;
+                        tradeDataByDecade[decade].count += 1;
+                      });
+
+                      const categories = [];
+                      const values = [];
+
+                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
+                        categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
+                        values.push(sum / count);
+                      }
+
+                      new ApexCharts(document.querySelector("#radarChart"), {
+                        series: [{
+                          name: 'Import Trade',
+                          data: values
+                        }],
+                        chart: {
+                          height: 350,
+                          type: 'radar'
+                        },
+                        xaxis: {
+                          categories: categories
+                        }
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              <!-- End Radar Chart -->
+              <!-- End Radar Chart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Polar Area Chart</h5>
+
+              <!-- Polar Area Chart -->
+              <div id="polarAreaChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 初始化每隔10年的数据容器
+                      const interval = 10;
+                      const tradeDataByDecade = {};
+
+                      // 对数据按年份进行处理，计算每隔10年的平均值
+                      japanData.forEach(item => {
+                        const year = parseInt(item["Year"]);
+                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                        const decade = Math.floor(year / interval) * interval;
+
+                        if (!tradeDataByDecade[decade]) {
+                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                        }
+                        tradeDataByDecade[decade].sum += value;
+                        tradeDataByDecade[decade].count += 1;
+                      });
+
+                      const categories = [];
+                      const values = [];
+
+                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
+                        categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
+                        values.push(sum / count);
+                      }
+
+                      new ApexCharts(document.querySelector("#polarAreaChart"), {
+                        series: values,
+                        chart: {
+                          type: 'polarArea',
+                          height: 350,
+                          toolbar: {
+                            show: true
+                          }
+                        },
+                        stroke: {
+                          colors: ['#fff']
+                        },
+                        fill: {
+                          opacity: 0.8
+                        },
+                        labels: categories
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              <!-- End Polar Area Chart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Radial Bar Chart</h5>
+
+              <!-- Radial Bar Chart -->
+              <div id="radialBarChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 初始化每隔10年的数据容器
+                      const interval = 10;
+                      const tradeDataByDecade = {};
+
+                      // 对数据按年份进行处理，计算每隔10年的平均值
+                      japanData.forEach(item => {
+                        const year = parseInt(item["Year"]);
+                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                        const decade = Math.floor(year / interval) * interval;
+
+                        if (!tradeDataByDecade[decade]) {
+                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                        }
+                        tradeDataByDecade[decade].sum += value;
+                        tradeDataByDecade[decade].count += 1;
+                      });
+
+                      const categories = [];
+                      const values = [];
+
+                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
+                        categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
+                        values.push(sum / count);
+                      }
+
+                      new ApexCharts(document.querySelector("#radialBarChart"), {
+                        series: values,
+                        chart: {
+                          height: 350,
+                          type: 'radialBar',
+                          toolbar: {
+                            show: true
+                          }
+                        },
+                        plotOptions: {
+                          radialBar: {
+                            dataLabels: {
+                              name: {
+                                fontSize: '22px',
+                              },
+                              value: {
+                                fontSize: '16px',
+                              },
+                              total: {
+                                show: true,
+                                label: 'Total',
+                                formatter: function (w) {
+                                  return values.reduce((a, b) => a + b, 0).toFixed(2);
+                                }
+                              }
+                            }
+                          }
+                        },
+                        labels: categories
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              <!-- End Radial Bar Chart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Bubble Chart</h5>
+
+              <!-- Bubble Chart -->
+              <div id="bubbleChart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 初始化每隔10年的数据容器
+                      const interval = 10;
+                      const tradeDataByDecade = {};
+
+                      // 对数据按年份进行处理，计算每隔10年的平均值
+                      japanData.forEach(item => {
+                        const year = parseInt(item["Year"]);
+                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                        const decade = Math.floor(year / interval) * interval;
+
+                        if (!tradeDataByDecade[decade]) {
+                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                        }
+                        tradeDataByDecade[decade].sum += value;
+                        tradeDataByDecade[decade].count += 1;
+                      });
+
+                      const categories = [];
+                      const bubbleData = [];
+
+                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
+                        const avgValue = sum / count;
+                        categories.push(decade);
+                        bubbleData.push([decade, avgValue, avgValue / 1000000]); // 第三个值用于表示气泡的大小
+                      }
+
+                      new ApexCharts(document.querySelector("#bubbleChart"), {
+                        series: [{
+                          name: 'Import Trade',
+                          data: bubbleData
+                        }],
+                        chart: {
+                          height: 350,
+                          type: 'bubble',
+                        },
+                        dataLabels: {
+                          enabled: false
+                        },
+                        fill: {
+                          opacity: 0.8
+                        },
+                        xaxis: {
+                          tickAmount: 10,
+                          type: 'category',
+                          categories: categories
+                        },
+                        yaxis: {
+                          title: {
+                            text: 'Import Trade (US$)'
+                          }
+                        }
+                      }).render();
+                    }
+                  });
+                });
+              </script>
+              <!-- End Bubble Chart -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+    <div class="copyright">
+      Copyright &copy; 2022.Company name All rights reserved.<a target="_blank"
+        href="https://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a>
+    </div>
+    <div class="credits">
+      <!-- All the links in the footer should remain intact. -->
+      <!-- You can delete the links only if you purchased the pro version. -->
+
+
+
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/chart.js/chart.min.js"></script>
+  <script src="assets/vendor/echarts/echarts.min.js"></script>
+  <script src="assets/vendor/quill/quill.min.js"></script>
+  <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+  <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
