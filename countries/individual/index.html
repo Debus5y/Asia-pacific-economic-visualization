@@ -15,7 +15,9 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -550,7 +552,8 @@
                     </div>
                     <div class="ps-3">
                       <h6>145</h6>
-                      <span class="text-success small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                      <span class="text-success small pt-1 fw-bold">12%</span> <span
+                        class="text-muted small pt-2 ps-1">increase</span>
 
                     </div>
                   </div>
@@ -585,7 +588,8 @@
                     </div>
                     <div class="ps-3">
                       <h6>$3,264</h6>
-                      <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                      <span class="text-success small pt-1 fw-bold">8%</span> <span
+                        class="text-muted small pt-2 ps-1">increase</span>
 
                     </div>
                   </div>
@@ -621,7 +625,8 @@
                     </div>
                     <div class="ps-3">
                       <h6>1244</h6>
-                      <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
+                      <span class="text-danger small pt-1 fw-bold">12%</span> <span
+                        class="text-muted small pt-2 ps-1">decrease</span>
 
                     </div>
                   </div>
@@ -969,42 +974,42 @@
                     radar: {
                       // shape: 'circle',
                       indicator: [{
-                          name: 'Sales',
-                          max: 6500
-                        },
-                        {
-                          name: 'Administration',
-                          max: 16000
-                        },
-                        {
-                          name: 'Information Technology',
-                          max: 30000
-                        },
-                        {
-                          name: 'Customer Support',
-                          max: 38000
-                        },
-                        {
-                          name: 'Development',
-                          max: 52000
-                        },
-                        {
-                          name: 'Marketing',
-                          max: 25000
-                        }
+                        name: 'Sales',
+                        max: 6500
+                      },
+                      {
+                        name: 'Administration',
+                        max: 16000
+                      },
+                      {
+                        name: 'Information Technology',
+                        max: 30000
+                      },
+                      {
+                        name: 'Customer Support',
+                        max: 38000
+                      },
+                      {
+                        name: 'Development',
+                        max: 52000
+                      },
+                      {
+                        name: 'Marketing',
+                        max: 25000
+                      }
                       ]
                     },
                     series: [{
                       name: 'Budget vs spending',
                       type: 'radar',
                       data: [{
-                          value: [4200, 3000, 20000, 35000, 50000, 18000],
-                          name: 'Allocated Budget'
-                        },
-                        {
-                          value: [5000, 14000, 28000, 26000, 42000, 21000],
-                          name: 'Actual Spending'
-                        }
+                        value: [4200, 3000, 20000, 35000, 50000, 18000],
+                        name: 'Allocated Budget'
+                      },
+                      {
+                        value: [5000, 14000, 28000, 26000, 42000, 21000],
+                        name: 'Actual Spending'
+                      }
                       ]
                     }]
                   });
@@ -1064,25 +1069,25 @@
                         show: false
                       },
                       data: [{
-                          value: 1048,
-                          name: 'Search Engine'
-                        },
-                        {
-                          value: 735,
-                          name: 'Direct'
-                        },
-                        {
-                          value: 580,
-                          name: 'Email'
-                        },
-                        {
-                          value: 484,
-                          name: 'Union Ads'
-                        },
-                        {
-                          value: 300,
-                          name: 'Video Ads'
-                        }
+                        value: 1048,
+                        name: 'Search Engine'
+                      },
+                      {
+                        value: 735,
+                        name: 'Direct'
+                      },
+                      {
+                        value: 580,
+                        name: 'Email'
+                      },
+                      {
+                        value: 484,
+                        name: 'Union Ads'
+                      },
+                      {
+                        value: 300,
+                        name: 'Video Ads'
+                      }
                       ]
                     }]
                   });
@@ -1145,7 +1150,175 @@
 
             </div>
           </div><!-- End News & Updates -->
+          <!-- 日本进口贸易 -->
+          <div class="card">
+            <div class="filter">
+              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                  <h6>Filter</h6>
+                </li>
+                <li><a class="dropdown-item" href="#">Today</a></li>
+                <li><a class="dropdown-item" href="#">This Month</a></li>
+                <li><a class="dropdown-item" href="#">This Year</a></li>
+              </ul>
+            </div>
 
+            <div class="card-body pb-0">
+              <h5 class="card-title">Japan Import Report <span>| This Month</span></h5>
+              <div id="japanImportChart" style="min-height: 400px;" class="echart"></div>
+
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  Papa.parse("../../data/trade/trade.csv", {
+                    download: true,
+                    header: true,
+                    complete: function (results) {
+                      const data = results.data;
+
+                      // 过滤出日本的数据
+                      const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                      // 提取需要的列数据
+                      const importCategories = [
+                        "average_value_Merchandise imports from economies in the Arab World (% of total merchandise imports)",
+                        "average_value_Merchandise imports from high-income economies (% of total merchandise imports)",
+                        "average_value_Merchandise imports from low- and middle-income economies in East Asia & Pacific (% of total merchandise imports)",
+                        "average_value_Merchandise imports from low- and middle-income economies in Europe & Central Asia (% of total merchandise imports)",
+                        "average_value_Merchandise imports from low- and middle-income economies in Latin America & the Caribbean (% of total merchandise imports)",
+                        "average_value_Merchandise imports from low- and middle-income economies in Middle East & North Africa (% of total merchandise imports)",
+                        "average_value_Merchandise imports from low- and middle-income economies in South Asia (% of total merchandise imports)",
+                        "average_value_Merchandise imports from low- and middle-income economies in Sub-Saharan Africa (% of total merchandise imports)",
+                        "average_value_Merchandise imports from low- and middle-income economies outside region (% of total merchandise imports)"
+                      ];
+
+                      const importValues = importCategories.map(category => {
+                        return parseFloat(japanData[0][category]);
+                      });
+
+                      // 绘制雷达图
+                      echarts.init(document.querySelector("#japanImportChart")).setOption({
+                        title: {
+                          text: 'Japan Import Categories Radar Chart'
+                        },
+                        tooltip: {},
+                        legend: {
+                          data: ['Japan']
+                        },
+                        radar: {
+                          indicator: importCategories.map(category => ({ name: category, max: 100 }))
+                        },
+                        series: [{
+                          name: 'Japan Import Categories',
+                          type: 'radar',
+                          data: [
+                            {
+                              value: importValues,
+                              name: 'Japan'
+                            }
+                          ]
+                        }]
+                      });
+                    }
+                  });
+                });
+              </script>
+            </div>
+          </div>
+          <!-- <折线图> -->
+          <div class="col-12">
+            <div class="card">
+              <div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                  <li class="dropdown-header text-start">
+                    <h6>Filter</h6>
+                  </li>
+                  <li><a class="dropdown-item" href="#">Today</a></li>
+                  <li><a class="dropdown-item" href="#">This Month</a></li>
+                  <li><a class="dropdown-item" href="#">This Year</a></li>
+                </ul>
+              </div>
+
+              <div class="card-body">
+                <h5 class="card-title">Japan Import Trade <span>/Yearly</span></h5>
+                <!-- Line Chart -->
+                <div id="japanImportTradeChart"></div>
+
+                <script>
+                  document.addEventListener("DOMContentLoaded", () => {
+                    Papa.parse("../../data/trade/trade.csv", {
+                      download: true,
+                      header: true,
+                      complete: function (results) {
+                        const data = results.data;
+
+                        // 过滤出日本的数据
+                        const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                        // 提取年份和进口贸易总额
+                        const years = japanData.map(item => item["Year"]);
+                        const importTradeValues = japanData.map(item => parseFloat(item["average_value_Merchandise imports (current US$)"]));
+
+                        // 创建折线图
+                        new ApexCharts(document.querySelector("#japanImportTradeChart"), {
+                          series: [{
+                            name: 'Import Trade',
+                            data: importTradeValues,
+                          }],
+                          chart: {
+                            height: 350,
+                            type: 'line',
+                            toolbar: {
+                              show: false
+                            },
+                          },
+                          markers: {
+                            size: 4
+                          },
+                          colors: ['#4154f1'],
+                          fill: {
+                            type: "gradient",
+                            gradient: {
+                              shadeIntensity: 1,
+                              opacityFrom: 0.3,
+                              opacityTo: 0.4,
+                              stops: [0, 90, 100]
+                            }
+                          },
+                          dataLabels: {
+                            enabled: false
+                          },
+                          stroke: {
+                            curve: 'smooth',
+                            width: 2
+                          },
+                          xaxis: {
+                            categories: years,
+                            title: {
+                              text: 'Year'
+                            }
+                          },
+                          yaxis: {
+                            title: {
+                              text: 'Import Trade (US$)'
+                            }
+                          },
+                          tooltip: {
+                            x: {
+                              format: 'yyyy'
+                            },
+                          }
+                        }).render();
+                      }
+                    });
+                  });
+                </script>
+                <!-- End Line Chart -->
+
+              </div>
+            </div>
+          </div><!-- End Reports -->
         </div><!-- End Right side columns -->
 
       </div>
@@ -1156,20 +1329,23 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      Copyright &copy; 2022.Company name All rights reserved.<a target="_blank" href="https://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a>
+      Copyright &copy; 2022.Company name All rights reserved.<a target="_blank"
+        href="https://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a>
     </div>
     <div class="credits">
       <!-- All the links in the footer should remain intact. -->
       <!-- You can delete the links only if you purchased the pro version. -->
-    
-      
-      
+
+
+
     </div>
   </footer><!-- End Footer -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
   <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/chart.js/chart.min.js"></script>
