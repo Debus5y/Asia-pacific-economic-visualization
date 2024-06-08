@@ -24,6 +24,8 @@
 
   <!-- ApexCharts CDN -->
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
@@ -229,23 +231,23 @@
                     header: true,
                     complete: function (results) {
                       const data = results.data;
-              
+
                       // 过滤出日本的数据
                       const japanData = data.filter(item => item["Country Name"] === "Japan");
-                      
+
                       // 对年份排序
                       const importTradeData = japanData.map(item => ({
                         year: parseInt(item["Year"]),
                         value: parseFloat(item["average_value_Merchandise imports (current US$)"])
                       })).sort((a, b) => a.year - b.year);
-              
+
                       // 提取年份和进口贸易总额
                       const years = importTradeData.map(item => item.year);
                       const importTradeValues = importTradeData.map(item => item.value);
-              
+
                       // 处理每隔十年的年份
                       const decadeYears = years.filter((year, index) => index % 10 === 0);
-              
+
                       new ApexCharts(document.querySelector("#columnChart"), {
                         series: [{
                           name: "Import Trade",
@@ -302,7 +304,7 @@
                   });
                 });
               </script>
-              
+
               <!-- End Column Chart -->
 
             </div>
@@ -397,7 +399,7 @@
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">Japan Export Categories Pie Chart <span id="selectedYear">| 2020</span></h5>
-      
+
               <!-- Pie Chart -->
               <div class="chart-container">
                 <select class="year-selector" id="yearSelector">
@@ -410,7 +412,7 @@
                 </select>
                 <div id="pieChart" style="min-height: 400px;" class="echart"></div>
               </div>
-      
+
               <script>
                 document.addEventListener("DOMContentLoaded", () => {
                   const fetchAndRenderData = (year) => {
@@ -419,15 +421,15 @@
                       header: true,
                       complete: function (results) {
                         const data = results.data;
-      
+
                         // 过滤出日本的数据
                         const japanData = data.filter(item => item["Country Name"] === "Japan" && item["Year"] === year);
-      
+
                         if (japanData.length === 0) {
                           alert("No data available for the selected year.");
                           return;
                         }
-      
+
                         // 简化后的类别名称
                         const simplifiedCategories = [
                           "Agricultural raw materials",
@@ -436,7 +438,7 @@
                           "Ores and metals",
                           "High-technology"
                         ];
-      
+
                         // 对应的原始列名称
                         const importCategories = [
                           "average_value_Agricultural raw materials exports (% of merchandise exports)",
@@ -445,9 +447,9 @@
                           "average_value_Ores and metals exports (% of merchandise exports)",
                           "average_value_High-technology exports (% of manufactured exports)"
                         ];
-      
+
                         const values = importCategories.map(category => parseFloat(japanData[0][category]));
-      
+
                         // 绘制饼图
                         echarts.init(document.querySelector("#pieChart")).setOption({
                           title: {
@@ -484,10 +486,10 @@
                       }
                     });
                   };
-      
+
                   // 初始获取和渲染默认年份的数据
                   fetchAndRenderData("2020");
-      
+
                   // 年份选择器的事件监听器
                   document.getElementById("yearSelector").addEventListener("change", (event) => {
                     const selectedYear = event.target.value;
@@ -497,76 +499,12 @@
                 });
               </script>
               <!-- End Pie Chart -->
-      
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Donut Chart</h5>
-
-              <!-- Donut Chart -->
-              <div id="donutChart"></div>
-
-              <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  Papa.parse("../../data/trade/trade.csv", {
-                    download: true,
-                    header: true,
-                    complete: function (results) {
-                      const data = results.data;
-
-                      // 过滤出日本的数据
-                      const japanData = data.filter(item => item["Country Name"] === "Japan");
-
-                      // 初始化每隔10年的数据容器
-                      const interval = 10;
-                      const tradeDataByDecade = {};
-
-                      // 对数据按年份进行处理，计算每隔10年的平均值
-                      japanData.forEach(item => {
-                        const year = parseInt(item["Year"]);
-                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
-                        const decade = Math.floor(year / interval) * interval;
-
-                        if (!tradeDataByDecade[decade]) {
-                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
-                        }
-                        tradeDataByDecade[decade].sum += value;
-                        tradeDataByDecade[decade].count += 1;
-                      });
-
-                      const categories = [];
-                      const values = [];
-
-                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
-                        categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
-                        values.push(sum / count);
-                      }
-
-                      new ApexCharts(document.querySelector("#donutChart"), {
-                        series: values,
-                        chart: {
-                          height: 350,
-                          type: 'donut',
-                          toolbar: {
-                            show: true
-                          }
-                        },
-                        labels: categories
-                      }).render();
-                    }
-                  });
-                });
-              </script>
-              <!-- End Donut Chart -->
-              <!-- End Donut Chart -->
 
             </div>
           </div>
         </div>
+
+
 
         <div class="col-lg-6">
           <div class="card">
@@ -709,11 +647,174 @@
 
         <div class="col-lg-6">
           <div class="card">
+              <div class="card-body">
+                  <h5 class="card-title">Heatmap</h5>
+      
+                  <!-- Year Buttons -->
+                  <div id="year-buttons" class="year-buttons"></div>
+      
+                  <!-- Heatmap -->
+                  <div id="heatmap" class="heatmap"></div>
+                  <div id="legend" class="legend"></div>
+      
+                  <script>
+                      document.addEventListener("DOMContentLoaded", () => {
+                          Papa.parse("../../data/trade/trade.csv", {
+                              download: true,
+                              header: true,
+                              complete: function (results) {
+                                  const data = results.data;
+      
+                                  // 过滤出日本的数据
+                                  const japanData = data.filter(item => item["Country Name"] === "Japan");
+      
+                                  const selectedColumns = [
+                                      "average_value_Commercial service exports (current US$)",
+                                      "average_value_Commercial service imports (current US$)",
+                                      "average_value_Merchandise exports (current US$)",
+                                      "average_value_Merchandise imports (current US$)",
+                                      "average_value_Merchandise exports to high-income economies (% of total merchandise exports)",
+                                      "average_value_Merchandise imports from high-income economies (% of total merchandise imports)"
+                                  ];
+      
+                                  const years = Array.from(new Set(japanData.map(d => parseInt(d["Year"])).filter(y => !isNaN(y)))).sort((a, b) => a - b);
+                                  const categories = selectedColumns;
+      
+                                  const heatmapData = [];
+                                  japanData.forEach(d => {
+                                      const year = parseInt(d["Year"]);
+                                      if (!isNaN(year)) {
+                                          selectedColumns.forEach(cat => {
+                                              heatmapData.push({
+                                                  year: year,
+                                                  category: cat,
+                                                  value: parseFloat(d[cat]) || 0
+                                              });
+                                          });
+                                      }
+                                  });
+      
+                                  const margin = {top: 50, right: 30, bottom: 50, left: 100},
+                                        width = 700 - margin.left - margin.right,
+                                        height = 500 - margin.top - margin.bottom;
+      
+                                  const svg = d3.select("#heatmap")
+                                                .append("svg")
+                                                .attr("width", width + margin.left + margin.right)
+                                                .attr("height", height + margin.top + margin.bottom)
+                                                .append("g")
+                                                .attr("transform", `translate(${margin.left},${margin.top})`);
+      
+                                  const x = d3.scaleBand()
+                                              .range([0, width])
+                                              .padding(0.05);
+      
+                                  const y = d3.scaleBand()
+                                              .range([height, 0])
+                                              .domain(categories)
+                                              .padding(0.05);
+      
+                                  const colorScale = d3.scaleSequential(d3.interpolateBlues)
+                                                       .domain([0, d3.max(heatmapData, d => d.value)]);
+      
+                                  svg.append("g")
+                                     .attr("class", "axis y-axis")
+                                     .call(d3.axisLeft(y));
+      
+                                  const legendWidth = 300;
+                                  const legendHeight = 20;
+                                  const legendMargin = {top: 10, right: 0, bottom: 0, left: 0};
+      
+                                  const legendSvg = d3.select("#legend")
+                                                      .append("svg")
+                                                      .attr("width", legendWidth + legendMargin.left + legendMargin.right)
+                                                      .attr("height", legendHeight + legendMargin.top + legendMargin.bottom)
+                                                      .append("g")
+                                                      .attr("transform", `translate(${legendMargin.left},${legendMargin.top})`);
+      
+                                  const legendScale = d3.scaleLinear()
+                                                        .domain([0, d3.max(heatmapData, d => d.value)])
+                                                        .range([0, legendWidth]);
+      
+                                  const legendAxis = d3.axisBottom(legendScale)
+                                                       .ticks(5)
+                                                       .tickSize(-legendHeight);
+      
+                                  const legend = legendSvg.append("g")
+                                                          .selectAll("rect")
+                                                          .data(d3.range(0, d3.max(heatmapData, d => d.value), d3.max(heatmapData, d => d.value) / legendWidth))
+                                                          .enter()
+                                                          .append("rect")
+                                                          .attr("x", d => legendScale(d))
+                                                          .attr("y", 0)
+                                                          .attr("width", 1)
+                                                          .attr("height", legendHeight)
+                                                          .style("fill", d => colorScale(d));
+      
+                                  legendSvg.append("g")
+                                           .attr("transform", `translate(0,${legendHeight})`)
+                                           .call(legendAxis);
+      
+                                  // Add year buttons
+                                  const yearIntervals = years.filter(y => y % 10 === 0);
+                                  const yearButtonsContainer = d3.select("#year-buttons");
+      
+                                  yearIntervals.forEach(year => {
+                                      yearButtonsContainer.append("div")
+                                          .attr("class", "year-button")
+                                          .attr("data-year", year)
+                                          .text(year)
+                                          .on("click", function() {
+                                              d3.selectAll(".year-button").classed("active", false);
+                                              d3.select(this).classed("active", true);
+                                              updateHeatmap(year);
+                                          });
+                                  });
+      
+                                  // Default to the first year
+                                  d3.select(`.year-button[data-year="${yearIntervals[0]}"]`).classed("active", true);
+                                  updateHeatmap(yearIntervals[0]);
+      
+                                  function updateHeatmap(selectedYear) {
+                                      const filteredData = heatmapData.filter(d => Math.floor(d.year / 10) * 10 === selectedYear);
+      
+                                      x.domain(years.filter(y => Math.floor(y / 10) * 10 === selectedYear));
+      
+                                      svg.selectAll(".x-axis").remove();
+                                      svg.append("g")
+                                         .attr("class", "axis x-axis")
+                                         .attr("transform", `translate(0,${height})`)
+                                         .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+      
+                                      const rects = svg.selectAll("rect").data(filteredData, d => `${d.year}:${d.category}`);
+      
+                                      rects.enter()
+                                           .append("rect")
+                                           .merge(rects)
+                                           .attr("x", d => x(d.year))
+                                           .attr("y", d => y(d.category))
+                                           .attr("width", x.bandwidth())
+                                           .attr("height", y.bandwidth())
+                                           .style("fill", d => colorScale(d.value));
+      
+                                      rects.exit().remove();
+                                  }
+                              }
+                          });
+                      });
+                  </script>
+                  <!-- End Heatmap -->
+      
+              </div>
+          </div>
+      </div>
+        <div class="col-lg-6">
+          <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Radial Bar Chart</h5>
+              <h5 class="card-title">Scatter Chart</h5>
 
-              <!-- Radial Bar Chart -->
-              <div id="radialBarChart"></div>
+              <!-- Scatter Chart -->
+              <div id="scatterChart"></div>
 
               <script>
                 document.addEventListener("DOMContentLoaded", () => {
@@ -730,147 +831,84 @@
                       const interval = 10;
                       const tradeDataByDecade = {};
 
-                      // 对数据按年份进行处理，计算每隔10年的平均值
+                      // 对数据按年份进行处理，分配到各个年代区间
                       japanData.forEach(item => {
                         const year = parseInt(item["Year"]);
-                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]) / 1e10; // 转换为千亿美元
                         const decade = Math.floor(year / interval) * interval;
 
                         if (!tradeDataByDecade[decade]) {
-                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                          tradeDataByDecade[decade] = [];
                         }
-                        tradeDataByDecade[decade].sum += value;
-                        tradeDataByDecade[decade].count += 1;
+                        tradeDataByDecade[decade].push({
+                          x: year,
+                          y: value
+                        });
                       });
 
-                      const categories = [];
-                      const values = [];
+                      const seriesData = Object.entries(tradeDataByDecade).map(([decade, data]) => {
+                        // 按年份排序
+                        data.sort((a, b) => a.x - b.x);
+                        return {
+                          name: `${decade}s`,
+                          data: data
+                        };
+                      });
 
-                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
-                        categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
-                        values.push(sum / count);
-                      }
-
-                      new ApexCharts(document.querySelector("#radialBarChart"), {
-                        series: values,
+                      const chart = new ApexCharts(document.querySelector("#scatterChart"), {
+                        series: seriesData,
                         chart: {
                           height: 350,
-                          type: 'radialBar',
+                          type: 'scatter',
+                          zoom: {
+                            enabled: true,
+                            type: 'xy'
+                          },
                           toolbar: {
                             show: true
                           }
                         },
-                        plotOptions: {
-                          radialBar: {
-                            dataLabels: {
-                              name: {
-                                fontSize: '22px',
-                              },
-                              value: {
-                                fontSize: '16px',
-                              },
-                              total: {
-                                show: true,
-                                label: 'Total',
-                                formatter: function (w) {
-                                  return values.reduce((a, b) => a + b, 0).toFixed(2);
-                                }
-                              }
-                            }
-                          }
-                        },
-                        labels: categories
-                      }).render();
-                    }
-                  });
-                });
-              </script>
-              <!-- End Radial Bar Chart -->
-
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Bubble Chart</h5>
-
-              <!-- Bubble Chart -->
-              <div id="bubbleChart"></div>
-
-              <script>
-                document.addEventListener("DOMContentLoaded", () => {
-                  Papa.parse("../../data/trade/trade.csv", {
-                    download: true,
-                    header: true,
-                    complete: function (results) {
-                      const data = results.data;
-
-                      // 过滤出日本的数据
-                      const japanData = data.filter(item => item["Country Name"] === "Japan");
-
-                      // 初始化每隔10年的数据容器
-                      const interval = 10;
-                      const tradeDataByDecade = {};
-
-                      // 对数据按年份进行处理，计算每隔10年的平均值
-                      japanData.forEach(item => {
-                        const year = parseInt(item["Year"]);
-                        const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
-                        const decade = Math.floor(year / interval) * interval;
-
-                        if (!tradeDataByDecade[decade]) {
-                          tradeDataByDecade[decade] = { sum: 0, count: 0 };
-                        }
-                        tradeDataByDecade[decade].sum += value;
-                        tradeDataByDecade[decade].count += 1;
-                      });
-
-                      const categories = [];
-                      const bubbleData = [];
-
-                      for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
-                        const avgValue = sum / count;
-                        categories.push(decade);
-                        bubbleData.push([decade, avgValue, avgValue / 1000000]); // 第三个值用于表示气泡的大小
-                      }
-
-                      new ApexCharts(document.querySelector("#bubbleChart"), {
-                        series: [{
-                          name: 'Import Trade',
-                          data: bubbleData
-                        }],
-                        chart: {
-                          height: 350,
-                          type: 'bubble',
-                        },
                         dataLabels: {
                           enabled: false
                         },
-                        fill: {
-                          opacity: 0.8
-                        },
                         xaxis: {
+                          type: 'numeric',
                           tickAmount: 10,
-                          type: 'category',
-                          categories: categories
+                          title: {
+                            text: 'Year'
+                          },
+                          labels: {
+                            formatter: function (value) {
+                              return Math.round(value).toString();
+                            }
+                          }
                         },
                         yaxis: {
                           title: {
-                            text: 'Import Trade (US$)'
+                            text: 'Import Trade (Billion US$)'
+                          },
+                          labels: {
+                            formatter: function (value) {
+                              return value.toFixed(2); // 保留两位小数
+                            }
+                          }
+                        },
+                        legend: {
+                          onItemClick: {
+                            toggleDataSeries: true
                           }
                         }
-                      }).render();
+                      });
+
+                      chart.render();
                     }
                   });
                 });
               </script>
-              <!-- End Bubble Chart -->
+              <!-- End Scatter Chart -->
             </div>
           </div>
         </div>
-
       </div>
     </section>
 
