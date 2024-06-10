@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Dashboard - NiceAdmin Bootstrap Template</title>
+  <title>Financial-sector</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -37,7 +37,58 @@
   
   ======================================================== -->
 </head>
+<!-- Custom CSS -->
+<style>
+  .section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
 
+  .card {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-10px);
+  }
+
+  .card-body {
+    padding: 40px;
+  }
+
+  .card-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  p {
+    font-family: 'Open Sans', sans-serif;
+    color: #2d2525;
+  }
+
+  .chart-container {
+    position: relative;
+    min-height: 500px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .year-selector {
+    margin-bottom: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+</style>
 <body>
 
   <!-- ======= Header ======= -->
@@ -46,7 +97,7 @@
     <div class="d-flex align-items-center justify-content-between">
       <a href="index.html" class="logo d-flex align-items-center">
         <img src="assets/img/logo.png" alt="">
-        <span class="d-none d-lg-block">NiceAdmin</span>
+        <span class="d-none d-lg-block">Financial-sector</span>
       </a>
 
     </div><!-- End Logo -->
@@ -55,8 +106,10 @@
   <main id="main" class="main">
     <section class="section">
       <div class="row">
-
+<div class = 'card'>
+  <div class = 'card-body'><h5 class="card-title">Japan Broad Money Growth Colunm Chart</h5>
         <div id="lineChart"></div>
+        
 
         <script>
           document.addEventListener("DOMContentLoaded", () => {
@@ -166,7 +219,7 @@
         <div class="col-lg-6">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Line CHart Discription</h5>
+              <h5 class="card-title">Line Chart Discription</h5>
 
               <!-- Line Chart -->
               <div id="lineChart"></div>
@@ -401,7 +454,7 @@
         <div class="col-lg-6">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Column CHart Discription</h5>
+              <h5 class="card-title">Column Chart Discription</h5>
 
               <!-- Line Chart -->
               <div id="lineChart"></div>
@@ -624,7 +677,7 @@
         <div class="col-lg-6">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Bar CHart Discription</h5>
+              <h5 class="card-title">Bar Chart Discription</h5>
 
               <!-- Line Chart -->
               <div id="lineChart"></div>
@@ -747,7 +800,7 @@
         <div class="col-lg-6">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Pie CHart Discription</h5>
+              <h5 class="card-title">Pie Chart Discription</h5>
 
               <!-- Line Chart -->
               <div id="lineChart"></div>
@@ -774,9 +827,7 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      Copyright &copy; 2022.Company name All rights reserved.<a target="_blank"
-        href="https://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a>
-    </div>
+      Copyright &copy; 2022.Company name All rights reserved.
     <div class="credits">
       <!-- All the links in the footer should remain intact. -->
       <!-- You can delete the links only if you purchased the pro version. -->

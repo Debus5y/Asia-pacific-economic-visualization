@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Interactive Dashboard</title>
+  <title>Important indicator</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -15,100 +15,166 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link
-    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" rel="stylesheet">
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
 
+  <!-- Custom CSS -->
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      /* background: url('assets/img/background.png') no-repeat center center fixed; */
+      background-size: cover;
+    }
+
+    .header .logo span {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .card {
+      margin-bottom: 30px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+      background: rgba(247, 243, 243, 0.8);
+    }
+
+    .card-body {
+      text-align: center;
+      font-family: 'Open Sans', sans-serif;
+    }
+
+    .custom-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .custom-button:hover {
+      background-color: #0056b3;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .custom-button i {
+      margin-right: 8px;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .card {
+      flex: 1 1 calc(33% - 20px);
+      max-width: calc(33% - 20px);
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        flex: 1 1 calc(100% - 20px);
+        max-width: calc(100% - 20px);
+      }
+    }
+  </style>
 </head>
 
 <body>
 
   <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top d-flex align-items-center">
-
     <div class="d-flex align-items-center justify-content-between">
       <a href="../../index.html" class="logo d-flex align-items-center">
         <img src="assets/img/logo.png" alt="">
-        <span class="d-none d-lg-block">Interactive Dashboard</span>
+        <span class="d-none d-lg-block">Important indicator</span>
       </a>
     </div><!-- End Logo -->
-
   </header><!-- End Header -->
 
   <main id="main" class="main">
     <section class="section">
-      <div class="row">
-
+      <div class="cards-container">
         <!-- Card 1 -->
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">economy-and-growth</h5>
-              <button onclick="location.href='economy-and-growth.html'">Go to Chart 1</button>
-            </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Economy and Growth</h5>
+            <button class="custom-button" onclick="location.href='economy-and-growth.html'">
+              <i class="bi bi-graph-up"></i> Go to Chart 1
+            </button>
           </div>
         </div>
 
         <!-- Card 2 -->
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">financial-sector</h5>
-              <button onclick="location.href='financial-sector.html'">Go to Chart 2</button>
-            </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Financial Sector</h5>
+            <button class="custom-button" onclick="location.href='financial-sector.html'">
+              <i class="bi bi-currency-dollar"></i> Go to Chart 2
+            </button>
           </div>
         </div>
 
         <!-- Card 3 -->
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">trade</h5>
-              <button onclick="location.href='trade.html'">Go to Chart 3</button>
-            </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Trade</h5>
+            <button class="custom-button" onclick="location.href='trade.html'">
+              <i class="bi bi-briefcase"></i> Go to Chart 3
+            </button>
           </div>
         </div>
 
         <!-- Card 4 -->
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">social-development</h5>
-              <button onclick="location.href='social-development.html'">Go to Chart 4</button>
-            </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Social Development</h5>
+            <button class="custom-button" onclick="location.href='social-development.html'">
+              <i class="bi bi-people"></i> Go to Chart 4
+            </button>
           </div>
         </div>
 
         <!-- Card 5 -->
-        <div class="col-lg-6">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">compare</h5>
-              <button onclick="location.href='compare.html'">Go to Chart 5</button>
-            </div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Compare</h5>
+            <button class="custom-button" onclick="location.href='compare.html'">
+              <i class="bi bi-bar-chart"></i> Go to Chart 5
+            </button>
           </div>
         </div>
-
       </div>
     </section>
-
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      &copy; 2024 <strong><span>Interactive Dashboard</span></strong>. All Rights Reserved
+     
     </div>
-    <div class="credits">
-      Designed by <a href="https://example.com/">Example</a>
-    </div>
+
   </footer><!-- End Footer -->
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
-      class="bi bi-arrow-up-short"></i></a>
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
   <!-- Vendor JS Files -->
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
