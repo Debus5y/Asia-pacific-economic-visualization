@@ -752,7 +752,7 @@
                                             // 绘制关系图
                                             echarts.init(document.querySelector("#relationshipGraph")).setOption({
                                                 title: {
-                                                    text: `Japan ${dataType === 'import' ? 'Import' : 'Export'} Volume from Different Regions in ${year}`,
+                                                    text: `${dataType === 'import' ? 'Import' : 'Export'} Volume from Different Regions in ${year}`,
                                                     subtext: `Based on percentage of total merchandise ${dataType === 'import' ? 'imports' : 'exports'}`,
                                                     left: 'center'
                                                 },
