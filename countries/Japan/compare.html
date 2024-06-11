@@ -30,9 +30,29 @@
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
 
+    <style>
+        .selector-container {
+            margin-bottom: 10px;
+        }
+
+        #dynamicImage {
+            width: 80%;
+        }
+    </style>
+    <script>
+        function updateImage() {
+            const category = document.getElementById('categorySelector').value;
+            const year = document.getElementById('yearSelector').value;
+            const imgElement = document.getElementById('dynamicImage');
+            imgElement.src = `../../data/Cluster/${category}-${year}.png`;
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            updateImage(); // Set default image
+        });
+    </script>
+
     <!-- =======================================================
-  * Template Name: NiceAdmin - v2.2.2
-  
   
   
   ======================================================== -->
@@ -57,373 +77,47 @@
             <div class="row">
 
 
+                
+
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Overview of Japan trade indicators</h5>
+                            <h5 class="card-title">National economic indicators cluster visualization</h5>
 
-                            <!-- Dropdown to switch between data views -->
-                            <div id="dropdown-container">
-                                <select id="dataSelector">
-                                    <option value="tradeValues">Trade Values</option>
-                                    <option value="tradeIndices">Trade Indices</option>
-                                    <option value="tradeSurplus">Trade Surplus</option>
+                            <!-- Selectors -->
+                            <div class="selector-container">
+                                <label for="categorySelector">选择类别:</label>
+                                <select id="categorySelector" onchange="updateImage()">
+                                    <option value="eco">eco</option>
+                                    <option value="fin">fin</option>
+                                    <option value="trade">trade</option>
                                 </select>
                             </div>
 
-                            <!-- Area Chart -->
-                            <div id="areaChart"></div>
-
-                            <!-- Slider for selecting the start time range -->
-                            <div id="slider-container">
-                                <input type="range" id="slider" min="0" max="100" value="0" step="1">
+                            <div class="selector-container">
+                                <label for="yearSelector">选择年份:</label>
+                                <select id="yearSelector" onchange="updateImage()">
+                                    <option value="2015">2015</option>
+                                    <option value="2010">2010</option>
+                                    <option value="2005">2005</option>
+                                    <option value="2000">2000</option>
+                                    <option value="1995">1995</option>
+                                    <option value="ALL">all</option>
+                                </select>
                             </div>
 
-                            <script>
-                                document.addEventListener("DOMContentLoaded", () => {
-                                    Papa.parse("../../data/trade/trade.csv", {
-                                        download: true,
-                                        header: true,
-                                        complete: function (results) {
-                                            const data = results.data;
+                            <!-- Image -->
+                            <div id="imageContainer" style="text-align: center;">
+                                <img id="dynamicImage" src="../../data/Cluster/eco-2000.png" alt="描述图片">
+                            </div>
 
-                                            // 过滤出日本的数据
-                                            const japanData = data.filter(item => item["Country Name"] === "Japan");
-
-                                            // 提取年份和数据并进行排序
-                                            const years = [];
-                                            const importValues = [];
-                                            const exportValues = [];
-                                            const tradeSurplus = [];
-                                            const exportIndex = [];
-                                            const importIndex = [];
-                                            const netTradeIndex = [];
-                                            japanData.forEach(item => {
-                                                const year = parseInt(item["Year"]);
-                                                const importValue = parseFloat(item["average_value_Merchandise imports (current US$)"]);
-                                                const exportValue = parseFloat(item["average_value_Merchandise exports (current US$)"]);
-                                                const surplus = exportValue - importValue;
-
-                                                years.push(year);
-                                                importValues.push(importValue);
-                                                exportValues.push(exportValue);
-                                                tradeSurplus.push(surplus);
-                                                exportIndex.push(parseFloat(item["average_value_Export value index (2000 = 100)"]));
-                                                importIndex.push(parseFloat(item["average_value_Import value index (2000 = 100)"]));
-                                                netTradeIndex.push(parseFloat(item["average_value_Net barter terms of trade index (2000 = 100)"]));
-                                            });
-
-                                            // 对年份进行排序
-                                            const sortedIndices = years.map((year, index) => index).sort((a, b) => years[a] - years[b]);
-                                            const sortedYears = sortedIndices.map(index => years[index]);
-                                            const sortedImportValues = sortedIndices.map(index => importValues[index]);
-                                            const sortedExportValues = sortedIndices.map(index => exportValues[index]);
-                                            const sortedTradeSurplus = sortedIndices.map(index => tradeSurplus[index]);
-                                            const sortedExportIndex = sortedIndices.map(index => exportIndex[index]);
-                                            const sortedImportIndex = sortedIndices.map(index => importIndex[index]);
-                                            const sortedNetTradeIndex = sortedIndices.map(index => netTradeIndex[index]);
-
-                                            // 创建初始图表配置
-                                            let options = {
-                                                series: [
-                                                    {
-                                                        name: 'Import Value',
-                                                        data: sortedImportValues
-                                                    },
-                                                    {
-                                                        name: 'Export Value',
-                                                        data: sortedExportValues
-                                                    }
-                                                ],
-                                                chart: {
-                                                    type: 'area',
-                                                    height: 350,
-                                                    zoom: {
-                                                        type: 'x',
-                                                        enabled: true,
-                                                        autoScaleYaxis: true
-                                                    }
-                                                },
-                                                dataLabels: {
-                                                    enabled: false
-                                                },
-                                                stroke: {
-                                                    curve: 'smooth'
-                                                },
-                                                fill: {
-                                                    type: 'gradient',
-                                                    gradient: {
-                                                        shadeIntensity: 1,
-                                                        opacityFrom: 0.7,
-                                                        opacityTo: 0.9,
-                                                    }
-                                                },
-                                                grid: {
-                                                    row: {
-                                                        colors: ['#f3f3f3', 'transparent'],
-                                                        opacity: 0.5
-                                                    },
-                                                },
-                                                xaxis: {
-                                                    categories: sortedYears,
-                                                    title: {
-                                                        text: 'Year'
-                                                    }
-                                                },
-                                                yaxis: {
-                                                    title: {
-                                                        text: 'Value (US$)'
-                                                    }
-                                                },
-                                                tooltip: {
-                                                    shared: true,
-                                                    intersect: false,
-                                                    y: {
-                                                        formatter: function (val) {
-                                                            return "$" + val;
-                                                        }
-                                                    }
-                                                }
-                                            };
-
-                                            // 渲染初始图表
-                                            let chart = new ApexCharts(document.querySelector("#areaChart"), options);
-                                            chart.render();
-
-                                            const slider = document.getElementById('slider');
-                                            slider.addEventListener('input', function () {
-                                                const sliderValue = parseInt(this.value);
-                                                const minIndex = Math.floor((sliderValue / 100) * (sortedYears.length - 1));
-
-                                                // 过滤数据到选择的年份范围内
-                                                const filteredYears = sortedYears.slice(minIndex);
-                                                const filteredImportValues = sortedImportValues.slice(minIndex);
-                                                const filteredExportValues = sortedExportValues.slice(minIndex);
-                                                const filteredTradeSurplus = sortedTradeSurplus.slice(minIndex);
-                                                const filteredExportIndex = sortedExportIndex.slice(minIndex);
-                                                const filteredImportIndex = sortedImportIndex.slice(minIndex);
-                                                const filteredNetTradeIndex = sortedNetTradeIndex.slice(minIndex);
-
-                                                // 更新图表数据
-                                                if (chartType === 'tradeValues') {
-                                                    chart.updateSeries([
-                                                        {
-                                                            name: 'Import Value',
-                                                            data: filteredImportValues
-                                                        },
-                                                        {
-                                                            name: 'Export Value',
-                                                            data: filteredExportValues
-                                                        }
-                                                    ]);
-                                                } else if (chartType === 'tradeIndices') {
-                                                    chart.updateSeries([
-                                                        {
-                                                            name: 'Export Value Index',
-                                                            data: filteredExportIndex
-                                                        },
-                                                        {
-                                                            name: 'Import Value Index',
-                                                            data: filteredImportIndex
-                                                        },
-                                                        {
-                                                            name: 'Net Barter Terms of Trade Index',
-                                                            data: filteredNetTradeIndex
-                                                        }
-                                                    ]);
-                                                } else if (chartType === 'tradeSurplus') {
-                                                    chart.updateSeries([
-                                                        {
-                                                            name: 'Trade Surplus',
-                                                            data: filteredTradeSurplus
-                                                        }
-                                                    ]);
-                                                }
-
-                                                // 更新图表X轴和其他选项
-                                                chart.updateOptions({
-                                                    xaxis: {
-                                                        categories: filteredYears
-                                                    },
-                                                    fill: chartType === 'tradeValues' ? {
-                                                        type: 'gradient',
-                                                        gradient: {
-                                                            shadeIntensity: 1,
-                                                            opacityFrom: 0.7,
-                                                            opacityTo: 0.9,
-                                                        }
-                                                    } : {
-                                                        type: 'solid'
-                                                    },
-                                                    annotations: chartType === 'tradeSurplus' ? {
-                                                        yaxis: [
-                                                            {
-                                                                y: 0,
-                                                                borderColor: '#FF0000',
-                                                                label: {
-                                                                    borderColor: '#FF0000',
-                                                                    style: {
-                                                                        color: '#fff',
-                                                                        background: '#FF0000'
-                                                                    },
-                                                                    text: 'Base Line (0)'
-                                                                }
-                                                            }
-                                                        ]
-                                                    } : chartType === 'tradeIndices' ? {
-                                                        yaxis: [
-                                                            {
-                                                                y: 100,
-                                                                borderColor: '#FF0000',
-                                                                label: {
-                                                                    borderColor: '#FF0000',
-                                                                    style: {
-                                                                        color: '#fff',
-                                                                        background: '#FF0000'
-                                                                    },
-                                                                    text: 'Base Index (100)'
-                                                                }
-                                                            }
-                                                        ]
-                                                    } : {}
-                                                });
-                                            });
-
-                                            let chartType = 'tradeValues';
-                                            document.getElementById('dataSelector').addEventListener('change', function () {
-                                                chartType = this.value;
-                                                if (chartType === 'tradeValues') {
-                                                    chart.updateSeries([
-                                                        {
-                                                            name: 'Import Value',
-                                                            data: sortedImportValues
-                                                        },
-                                                        {
-                                                            name: 'Export Value',
-                                                            data: sortedExportValues
-                                                        }
-                                                    ]);
-                                                    chart.updateOptions({
-                                                        fill: {
-                                                            type: 'gradient',
-                                                            gradient: {
-                                                                shadeIntensity: 1,
-                                                                opacityFrom: 0.7,
-                                                                opacityTo: 0.9,
-                                                            }
-                                                        },
-                                                        yaxis: {
-                                                            title: {
-                                                                text: 'Value (US$)'
-                                                            }
-                                                        },
-                                                        annotations: {
-                                                            yaxis: []
-                                                        }
-                                                    });
-                                                } else if (chartType === 'tradeIndices') {
-                                                    chart.updateSeries([
-                                                        {
-                                                            name: 'Export Value Index',
-                                                            data: sortedExportIndex
-                                                        },
-                                                        {
-                                                            name: 'Import Value Index',
-                                                            data: sortedImportIndex
-                                                        },
-                                                        {
-                                                            name: 'Net Barter Terms of Trade Index',
-                                                            data: sortedNetTradeIndex
-                                                        }
-                                                    ]);
-                                                    chart.updateOptions({
-                                                        fill: {
-                                                            type: 'solid'
-                                                        },
-                                                        yaxis: {
-                                                            title: {
-                                                                text: 'Index (2000 = 100)'
-                                                            }
-                                                        },
-                                                        annotations: {
-                                                            yaxis: [
-                                                                {
-                                                                    y: 100,
-                                                                    borderColor: '#FF0000',
-                                                                    label: {
-                                                                        borderColor: '#FF0000',
-                                                                        style: {
-                                                                            color: '#fff',
-                                                                            background: '#FF0000'
-                                                                        },
-                                                                        text: 'Base Index (100)'
-                                                                    }
-                                                                }
-                                                            ]
-                                                        }
-                                                    });
-                                                } else if (chartType === 'tradeSurplus') {
-                                                    chart.updateSeries([
-                                                        {
-                                                            name: 'Trade Surplus',
-                                                            data: sortedTradeSurplus
-                                                        }
-                                                    ]);
-                                                    chart.updateOptions({
-                                                        fill: {
-                                                            type: 'solid'
-                                                        },
-                                                        yaxis: {
-                                                            title: {
-                                                                text: 'Value (US$)'
-                                                            }
-                                                        },
-                                                        annotations: {
-                                                            yaxis: [
-                                                                {
-                                                                    y: 0,
-                                                                    borderColor: '#FF0000',
-                                                                    label: {
-                                                                        borderColor: '#FF0000',
-                                                                        style: {
-                                                                            color: '#fff',
-                                                                            background: '#FF0000'
-                                                                        },
-                                                                        text: 'Base Line (0)'
-                                                                    }
-                                                                }
-                                                            ]
-                                                        }
-                                                    });
-                                                }
-                                            });
-                                        }
-                                    });
-                                });
-                            </script>
-
-                            <!-- End Area Chart -->
+                            <p id="test for line">The similarity and change of economic indicators in Asia-Pacific countries during 1995-2015 were analyzed by clustering method</p>
+                            <!-- End Image -->
 
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">这里是介绍</h5>
-
-                            <!-- Line Chart -->
-                            <div id="lineChart"></div>
-
-
-                            <p id="test for line">这里是内容</p>
-
-                            <!-- End Line Chart -->
-
-                        </div>
-                    </div>
-                </div>
 
 
 
@@ -763,6 +457,39 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">这里是介绍</h5>
+
+                            <!-- Line Chart -->
+                            <div id="lineChart"></div>
+
+
+                            <p id="test for line">这里是内容</p>
+
+                            <!-- End Line Chart -->
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
@@ -821,324 +548,325 @@
                                         "2020": [
                                             {
                                                 "Indicator": "Economic Size",
-                                                "China": 90,
-                                                "Australia": 85,
-                                                "Japan": 88,
-                                                "Malaysia": 80,
-                                                "Singapore": 78,
-                                                "South Korea": 85,
-                                                "Indonesia": 72,
-                                                "Thailand": 70,
-                                                "Vietnam": 65,
-                                                "Philippines": 60
-                                            },
-                                            {
-                                                "Indicator": "National Quality",
-                                                "China": 85,
-                                                "Australia": 90,
-                                                "Japan": 92,
-                                                "Malaysia": 78,
-                                                "Singapore": 90,
-                                                "South Korea": 88,
-                                                "Indonesia": 70,
-                                                "Thailand": 72,
-                                                "Vietnam": 68,
-                                                "Philippines": 65
-                                            },
-                                            {
-                                                "Indicator": "Sustainable Development Expectations",
-                                                "China": 82,
-                                                "Australia": 88,
-                                                "Japan": 85,
-                                                "Malaysia": 75,
-                                                "Singapore": 90,
-                                                "South Korea": 85,
-                                                "Indonesia": 68,
-                                                "Thailand": 70,
-                                                "Vietnam": 65,
-                                                "Philippines": 62
-                                            },
-                                            {
-                                                "Indicator": "International Trade Influence",
                                                 "China": 95,
-                                                "Australia": 82,
-                                                "Japan": 90,
-                                                "Malaysia": 78,
-                                                "Singapore": 88,
-                                                "South Korea": 85,
-                                                "Indonesia": 72,
-                                                "Thailand": 70,
-                                                "Vietnam": 68,
-                                                "Philippines": 63
-                                            },
-                                            {
-                                                "Indicator": "Financial Market Stability",
-                                                "China": 88,
-                                                "Australia": 90,
-                                                "Japan": 92,
-                                                "Malaysia": 80,
-                                                "Singapore": 90,
-                                                "South Korea": 85,
-                                                "Indonesia": 70,
-                                                "Thailand": 75,
-                                                "Vietnam": 68,
-                                                "Philippines": 65
-                                            },
-                                            {
-                                                "Indicator": "Technological Advancement",
-                                                "China": 90,
-                                                "Australia": 88,
-                                                "Japan": 92,
-                                                "Malaysia": 78,
-                                                "Singapore": 95,
-                                                "South Korea": 90,
-                                                "Indonesia": 68,
-                                                "Thailand": 70,
-                                                "Vietnam": 65,
-                                                "Philippines": 62
-                                            }
-                                        ],
-                                        "2010": [
-                                            {
-                                                "Indicator": "Economic Size",
-                                                "China": 80,
-                                                "Australia": 75,
-                                                "Japan": 82,
+                                                "Australia": 80,
+                                                "Japan": 88,
                                                 "Malaysia": 70,
-                                                "Singapore": 68,
-                                                "South Korea": 75,
-                                                "Indonesia": 62,
-                                                "Thailand": 60,
+                                                "Singapore": 75,
+                                                "South Korea": 85,
+                                                "Indonesia": 60,
+                                                "Thailand": 65,
                                                 "Vietnam": 55,
                                                 "Philippines": 50
                                             },
                                             {
                                                 "Indicator": "National Quality",
-                                                "China": 75,
-                                                "Australia": 85,
-                                                "Japan": 87,
-                                                "Malaysia": 68,
-                                                "Singapore": 85,
-                                                "South Korea": 83,
+                                                "China": 80,
+                                                "Australia": 95,
+                                                "Japan": 92,
+                                                "Malaysia": 70,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
                                                 "Indonesia": 60,
-                                                "Thailand": 62,
-                                                "Vietnam": 58,
-                                                "Philippines": 55
+                                                "Thailand": 65,
+                                                "Vietnam": 55,
+                                                "Philippines": 50
                                             },
                                             {
                                                 "Indicator": "Sustainable Development Expectations",
-                                                "China": 72,
-                                                "Australia": 80,
-                                                "Japan": 80,
+                                                "China": 75,
+                                                "Australia": 90,
+                                                "Japan": 85,
                                                 "Malaysia": 65,
-                                                "Singapore": 85,
-                                                "South Korea": 80,
-                                                "Indonesia": 58,
+                                                "Singapore": 92,
+                                                "South Korea": 82,
+                                                "Indonesia": 55,
                                                 "Thailand": 60,
-                                                "Vietnam": 55,
-                                                "Philippines": 52
+                                                "Vietnam": 52,
+                                                "Philippines": 48
                                             },
                                             {
                                                 "Indicator": "International Trade Influence",
-                                                "China": 85,
-                                                "Australia": 72,
-                                                "Japan": 80,
-                                                "Malaysia": 68,
+                                                "China": 98,
+                                                "Australia": 80,
+                                                "Japan": 90,
+                                                "Malaysia": 70,
                                                 "Singapore": 85,
-                                                "South Korea": 80,
-                                                "Indonesia": 60,
-                                                "Thailand": 58,
-                                                "Vietnam": 55,
-                                                "Philippines": 52
+                                                "South Korea": 82,
+                                                "Indonesia": 55,
+                                                "Thailand": 60,
+                                                "Vietnam": 52,
+                                                "Philippines": 48
                                             },
                                             {
                                                 "Indicator": "Financial Market Stability",
-                                                "China": 78,
-                                                "Australia": 85,
-                                                "Japan": 85,
-                                                "Malaysia": 70,
-                                                "Singapore": 85,
-                                                "South Korea": 80,
-                                                "Indonesia": 60,
-                                                "Thailand": 65,
-                                                "Vietnam": 58,
-                                                "Philippines": 55
+                                                "China": 82,
+                                                "Australia": 92,
+                                                "Japan": 95,
+                                                "Malaysia": 72,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
+                                                "Indonesia": 55,
+                                                "Thailand": 62,
+                                                "Vietnam": 52,
+                                                "Philippines": 48
                                             },
                                             {
                                                 "Indicator": "Technological Advancement",
-                                                "China": 80,
-                                                "Australia": 80,
-                                                "Japan": 85,
-                                                "Malaysia": 65,
-                                                "Singapore": 90,
-                                                "South Korea": 85,
-                                                "Indonesia": 58,
-                                                "Thailand": 60,
-                                                "Vietnam": 55,
-                                                "Philippines": 52
+                                                "China": 85,
+                                                "Australia": 82,
+                                                "Japan": 95,
+                                                "Malaysia": 68,
+                                                "Singapore": 95,
+                                                "South Korea": 90,
+                                                "Indonesia": 50,
+                                                "Thailand": 55,
+                                                "Vietnam": 48,
+                                                "Philippines": 45
                                             }
                                         ],
-                                        "2000": [
+                                        "2010": [
                                             {
                                                 "Indicator": "Economic Size",
-                                                "China": 70,
-                                                "Australia": 65,
-                                                "Japan": 75,
+                                                "China": 85,
+                                                "Australia": 70,
+                                                "Japan": 82,
                                                 "Malaysia": 60,
-                                                "Singapore": 58,
-                                                "South Korea": 65,
-                                                "Indonesia": 55,
-                                                "Thailand": 50,
+                                                "Singapore": 65,
+                                                "South Korea": 75,
+                                                "Indonesia": 50,
+                                                "Thailand": 55,
                                                 "Vietnam": 45,
                                                 "Philippines": 40
                                             },
                                             {
                                                 "Indicator": "National Quality",
-                                                "China": 65,
-                                                "Australia": 75,
-                                                "Japan": 77,
+                                                "China": 70,
+                                                "Australia": 90,
+                                                "Japan": 87,
                                                 "Malaysia": 58,
-                                                "Singapore": 75,
-                                                "South Korea": 73,
+                                                "Singapore": 85,
+                                                "South Korea": 80,
                                                 "Indonesia": 50,
-                                                "Thailand": 52,
-                                                "Vietnam": 48,
-                                                "Philippines": 45
+                                                "Thailand": 55,
+                                                "Vietnam": 45,
+                                                "Philippines": 40
                                             },
                                             {
                                                 "Indicator": "Sustainable Development Expectations",
-                                                "China": 62,
-                                                "Australia": 70,
-                                                "Japan": 70,
+                                                "China": 65,
+                                                "Australia": 85,
+                                                "Japan": 80,
                                                 "Malaysia": 55,
-                                                "Singapore": 75,
-                                                "South Korea": 70,
-                                                "Indonesia": 48,
+                                                "Singapore": 88,
+                                                "South Korea": 77,
+                                                "Indonesia": 45,
                                                 "Thailand": 50,
-                                                "Vietnam": 45,
-                                                "Philippines": 42
+                                                "Vietnam": 42,
+                                                "Philippines": 38
                                             },
                                             {
                                                 "Indicator": "International Trade Influence",
-                                                "China": 75,
-                                                "Australia": 62,
-                                                "Japan": 70,
+                                                "China": 88,
+                                                "Australia": 70,
+                                                "Japan": 80,
                                                 "Malaysia": 58,
-                                                "Singapore": 75,
-                                                "South Korea": 70,
-                                                "Indonesia": 50,
-                                                "Thailand": 48,
-                                                "Vietnam": 45,
-                                                "Philippines": 42
+                                                "Singapore": 85,
+                                                "South Korea": 77,
+                                                "Indonesia": 45,
+                                                "Thailand": 50,
+                                                "Vietnam": 42,
+                                                "Philippines": 38
                                             },
                                             {
                                                 "Indicator": "Financial Market Stability",
-                                                "China": 68,
-                                                "Australia": 75,
-                                                "Japan": 75,
+                                                "China": 72,
+                                                "Australia": 88,
+                                                "Japan": 85,
                                                 "Malaysia": 60,
-                                                "Singapore": 75,
-                                                "South Korea": 70,
-                                                "Indonesia": 50,
-                                                "Thailand": 55,
-                                                "Vietnam": 48,
-                                                "Philippines": 45
+                                                "Singapore": 85,
+                                                "South Korea": 77,
+                                                "Indonesia": 45,
+                                                "Thailand": 52,
+                                                "Vietnam": 42,
+                                                "Philippines": 38
                                             },
                                             {
                                                 "Indicator": "Technological Advancement",
-                                                "China": 70,
-                                                "Australia": 70,
-                                                "Japan": 75,
+                                                "China": 75,
+                                                "Australia": 75,
+                                                "Japan": 85,
                                                 "Malaysia": 55,
-                                                "Singapore": 80,
-                                                "South Korea": 75,
-                                                "Indonesia": 48,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
+                                                "Indonesia": 45,
                                                 "Thailand": 50,
-                                                "Vietnam": 45,
-                                                "Philippines": 42
+                                                "Vietnam": 42,
+                                                "Philippines": 38
                                             }
                                         ],
-                                        "1990": [
+                                        "2000": [
                                             {
                                                 "Indicator": "Economic Size",
-                                                "China": 60,
-                                                "Australia": 55,
-                                                "Japan": 65,
+                                                "China": 75,
+                                                "Australia": 60,
+                                                "Japan": 75,
                                                 "Malaysia": 50,
-                                                "Singapore": 48,
-                                                "South Korea": 55,
-                                                "Indonesia": 45,
-                                                "Thailand": 40,
+                                                "Singapore": 55,
+                                                "South Korea": 65,
+                                                "Indonesia": 40,
+                                                "Thailand": 45,
                                                 "Vietnam": 35,
                                                 "Philippines": 30
                                             },
                                             {
                                                 "Indicator": "National Quality",
-                                                "China": 55,
-                                                "Australia": 65,
-                                                "Japan": 67,
+                                                "China": 60,
+                                                "Australia": 80,
+                                                "Japan": 77,
                                                 "Malaysia": 48,
-                                                "Singapore": 65,
-                                                "South Korea": 63,
+                                                "Singapore": 75,
+                                                "South Korea": 70,
                                                 "Indonesia": 40,
-                                                "Thailand": 42,
-                                                "Vietnam": 38,
-                                                "Philippines": 35
+                                                "Thailand": 45,
+                                                "Vietnam": 35,
+                                                "Philippines": 30
                                             },
                                             {
                                                 "Indicator": "Sustainable Development Expectations",
-                                                "China": 52,
-                                                "Australia": 60,
-                                                "Japan": 60,
+                                                "China": 55,
+                                                "Australia": 75,
+                                                "Japan": 70,
                                                 "Malaysia": 45,
-                                                "Singapore": 65,
-                                                "South Korea": 60,
+                                                "Singapore": 78,
+                                                "South Korea": 67,
                                                 "Indonesia": 38,
-                                                "Thailand": 40,
-                                                "Vietnam": 35,
-                                                "Philippines": 32
+                                                "Thailand": 42,
+                                                "Vietnam": 32,
+                                                "Philippines": 28
                                             },
                                             {
                                                 "Indicator": "International Trade Influence",
-                                                "China": 65,
-                                                "Australia": 52,
-                                                "Japan": 60,
+                                                "China": 78,
+                                                "Australia": 60,
+                                                "Japan": 70,
                                                 "Malaysia": 48,
-                                                "Singapore": 65,
-                                                "South Korea": 60,
-                                                "Indonesia": 40,
-                                                "Thailand": 38,
-                                                "Vietnam": 35,
-                                                "Philippines": 32
+                                                "Singapore": 75,
+                                                "South Korea": 67,
+                                                "Indonesia": 38,
+                                                "Thailand": 42,
+                                                "Vietnam": 32,
+                                                "Philippines": 28
                                             },
                                             {
                                                 "Indicator": "Financial Market Stability",
-                                                "China": 58,
-                                                "Australia": 65,
-                                                "Japan": 65,
+                                                "China": 62,
+                                                "Australia": 78,
+                                                "Japan": 75,
                                                 "Malaysia": 50,
+                                                "Singapore": 75,
+                                                "South Korea": 67,
+                                                "Indonesia": 38,
+                                                "Thailand": 45,
+                                                "Vietnam": 32,
+                                                "Philippines": 28
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 65,
+                                                "Australia": 70,
+                                                "Japan": 75,
+                                                "Malaysia": 45,
+                                                "Singapore": 80,
+                                                "South Korea": 75,
+                                                "Indonesia": 32,
+                                                "Thailand": 35,
+                                                "Vietnam": 32,
+                                                "Philippines": 28
+                                            }
+                                        ],
+                                        "1990": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 65,
+                                                "Australia": 50,
+                                                "Japan": 65,
+                                                "Malaysia": 40,
+                                                "Singapore": 45,
+                                                "South Korea": 55,
+                                                "Indonesia": 30,
+                                                "Thailand": 35,
+                                                "Vietnam": 25,
+                                                "Philippines": 20
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 50,
+                                                "Australia": 70,
+                                                "Japan": 67,
+                                                "Malaysia": 38,
                                                 "Singapore": 65,
                                                 "South Korea": 60,
-                                                "Indonesia": 40,
-                                                "Thailand": 45,
-                                                "Vietnam": 38,
-                                                "Philippines": 35
+                                                "Indonesia": 30,
+                                                "Thailand": 35,
+                                                "Vietnam": 25,
+                                                "Philippines": 20
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 45,
+                                                "Australia": 65,
+                                                "Japan": 60,
+                                                "Malaysia": 35,
+                                                "Singapore": 68,
+                                                "South Korea": 57,
+                                                "Indonesia": 28,
+                                                "Thailand": 32,
+                                                "Vietnam": 22,
+                                                "Philippines": 18
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 68,
+                                                "Australia": 50,
+                                                "Japan": 60,
+                                                "Malaysia": 38,
+                                                "Singapore": 65,
+                                                "South Korea": 57,
+                                                "Indonesia": 28,
+                                                "Thailand": 32,
+                                                "Vietnam": 22,
+                                                "Philippines": 18
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 52,
+                                                "Australia": 70,
+                                                "Japan": 65,
+                                                "Malaysia": 40,
+                                                "Singapore": 65,
+                                                "South Korea": 57,
+                                                "Indonesia": 28,
+                                                "Thailand": 35,
+                                                "Vietnam": 22,
+                                                "Philippines": 18
                                             },
                                             {
                                                 "Indicator": "Technological Advancement",
                                                 "China": 55,
-                                                "Australia": 50,
-                                                "Japan": 60,
-                                                "Malaysia": 40,
-                                                "Singapore": 65,
+                                                "Australia": 60,
+                                                "Japan": 65,
+                                                "Malaysia": 35,
+                                                "Singapore": 68,
                                                 "South Korea": 60,
-                                                "Indonesia": 35,
-                                                "Thailand": 40,
-                                                "Vietnam": 35,
-                                                "Philippines": 30
+                                                "Indonesia": 22,
+                                                "Thailand": 25,
+                                                "Vietnam": 22,
+                                                "Philippines": 18
                                             }
                                         ]
                                     };
+
 
                                     // Function to render radar chart
                                     function renderRadarChart(year, country, additionalCountry) {
@@ -1230,6 +958,9 @@
                                 });
                             </script>
                             <!-- End Radar Chart -->
+
+                            <p id="test for line">A radar map was constructed based on a scoring system to comprehensively compare the economic development and health of Asia-Pacific countries. The score was 0-100, the higher the score, the better the performance of the country</p>
+                            <!-- End Image -->
 
                         </div>
                     </div>
@@ -1370,8 +1101,6 @@
     <!-- ======= Footer ======= -->
     <footer id="footer" class="footer">
         <div class="copyright">
-            Copyright &copy; 2022.Company name All rights reserved.<a target="_blank"
-                href="https://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a>
         </div>
         <div class="credits">
             <!-- All the links in the footer should remain intact. -->
