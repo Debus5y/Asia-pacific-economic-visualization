@@ -118,7 +118,9 @@
             <h5 class="card-title">Japan Broad Money Growth Colunm Chart</h5>
             <div id="lineChart"></div>
 
-
+            <p>本表格通过折线图展示了日本金融数据中 average_value_DEC alternative conversion factor (LCU per US$)
+              随时间的变化，支持交互式缩放和动态调整标签显示，以提供更好的用户体验。
+              纵坐标为DEC替代转换因子，单位为本国货币对美元。横坐标为年份。</p>
             <script>
               document.addEventListener("DOMContentLoaded", () => {
                 Papa.parse("../../data/financial-sector/financial-sector.csv", {
@@ -224,25 +226,7 @@
           </div>
         </div>
       </div>
-      <div class="col-lg-6">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Line Chart Discription</h5>
-
-            <!-- Line Chart -->
-            <div id="lineChart"></div>
-
-
-            <p id="test for line">本表格通过折线图展示了日本金融数据中 average_value_DEC alternative conversion factor (LCU per US$)
-              随时间的变化，支持交互式缩放和动态调整标签显示，以提供更好的用户体验。
-              纵坐标为DEC替代转换因子，单位为本国货币对美元。横坐标为年份。
-            </p>
-
-            <!-- End Line Chart -->
-
-          </div>
-        </div>
-      </div>
+    
 
 
 
@@ -257,6 +241,8 @@
               <div id="enlargedColumnChart" class="fade-in"></div>
               <div id="columnInfo"></div>
             </div>
+            <p>本表格本表格用于展示日本每年的广义货币增长率（annual %）。当用户点击某个数据柱形时时，选中的年份和货币增长值会显示在放大图中。
+              放大图显示选中的年份和货币增长值的详细信息，放大图容器在点击数据点后显示，并应用放大动画效果。表格横坐标为年份，纵坐标为广义货币增长率。</p>
 
             <script>
               document.addEventListener("DOMContentLoaded", () => {
@@ -460,23 +446,8 @@
           </div>
         </div>
       </div>
-      <div class="col-lg-6">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Column Chart Discription</h5>
+      
 
-            <!-- Line Chart -->
-            <div id="lineChart"></div>
-
-
-            <p id="test for line">本表格本表格用于展示日本每年的广义货币增长率（annual %）。当用户点击某个数据柱形时时，选中的年份和货币增长值会显示在放大图中。
-              放大图显示选中的年份和货币增长值的详细信息，放大图容器在点击数据点后显示，并应用放大动画效果。表格横坐标为年份，纵坐标为广义货币增长率。</p>
-
-            <!-- End Line Chart -->
-
-          </div>
-        </div>
-      </div>
       <div class="col-lg-6">
         <div class="card">
           <div class="card-body">
@@ -488,6 +459,8 @@
               <div id="enlargedBarChart"></div>
               <div id="barChartInfo"></div>
             </div>
+            <p>本表格用于展示日本每十年的广义货币与总储备比率。当用户点击某个数据柱形时时，选中的年份和货币增长值会显示在放大图中。
+              放大图显示选中的年份和货币增长值的详细信息，放大图容器在点击数据点后显示，并应用放大动画效果。表格纵坐标为年份，横坐标为广义货币与总储备比率。</p>
 
             <script>
               document.addEventListener("DOMContentLoaded", () => {
@@ -683,151 +656,122 @@
           </div>
         </div>
       </div>
+      
+
+
       <div class="col-lg-6">
         <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Bar Chart Discription</h5>
-
-            <!-- Line Chart -->
-            <div id="lineChart"></div>
-
-
-            <p id="test for line">本表格用于展示日本每十年的广义货币与总储备比率。当用户点击某个数据柱形时时，选中的年份和货币增长值会显示在放大图中。
-              放大图显示选中的年份和货币增长值的详细信息，放大图容器在点击数据点后显示，并应用放大动画效果。表格纵坐标为年份，横坐标为广义货币与总储备比率。
-            </p>
-
-            <!-- End Line Chart -->
-
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Japan Investment Categories Pie Chart <span id="selectedYear">| 2020</span></h5>
-
-            <!-- Pie Chart -->
-            <div class="chart-container">
-              <select class="year-selector" id="yearSelector">
-                <!-- 从1990年到2024年的年份选项 -->
-                <script>
-                  for (let year = 1990; year <= 2020; year++) {
-                    document.write('<option value="' + year + '">' + year + '</option>');
-                  }
-                </script>
-              </select>
-              <div id="pieChart" style="min-height: 400px;" class="echart"></div>
-            </div>
-
-            <script>
-              document.addEventListener("DOMContentLoaded", () => {
-                const fetchAndRenderData = (year) => {
-                  Papa.parse("../../data/financial-sector/financial-sector.csv", {
-                    download: true,
-                    header: true,
-                    complete: function (results) {
-                      const data = results.data;
-
-                      // 过滤出日本的数据
-                      const japanData = data.filter(item => item["Country Name"] === "Japan" && item["Year"] === year);
-
-                      if (japanData.length === 0) {
-                        alert("No data available for the selected year.");
-                        return;
-                      }
-
-                      // 简化后的类别名称
-                      const simplifiedCategories = [
-                        "Claims",
-                        "Foreign inflows",
-                        "Foreign outflows"
-                      ];
-
-                      // 对应的原始列名称
-                      const importCategories = [
-                        "average_value_Claims on central government, etc. (% GDP)",
-                        "average_value_Foreign direct investment, net inflows (% of GDP)",
-                        "average_value_Foreign direct investment, net outflows (% of GDP)"
-
-                      ];
-
-                      const values = importCategories.map(category => parseFloat(japanData[0][category]));
-
-                      // 绘制饼图
-                      echarts.init(document.querySelector("#pieChart")).setOption({
-                        title: {
-                          text: `Japan Investment Categories in ${year}`,
-                          subtext: 'Based on GDP',
-                          left: 'center'
-                        },
-                        tooltip: {
-                          trigger: 'item'
-                        },
-                        legend: {
-                          orient: 'vertical',
-                          left: 'left'
-                        },
-                        series: [
-                          {
-                            name: 'Investment Category',
-                            type: 'pie',
-                            radius: '50%',
-                            data: simplifiedCategories.map((category, index) => ({
-                              value: values[index],
-                              name: category
-                            })),
-                            emphasis: {
-                              itemStyle: {
-                                shadowBlur: 10,
-                                shadowOffsetX: 0,
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                              }
+            <div class="card-body">
+                <h5 class="card-title">Japan Investment Categories Pie Chart <span id="selectedYear">| 2000</span></h5>
+    
+                <!-- Pie Chart -->
+                <div class="chart-container">
+                    <select class="year-selector" id="yearSelector">
+                        <!-- 从1990年到2020年的年份选项 -->
+                        <script>
+                            for (let year = 1990; year <= 2020; year++) {
+                                document.write('<option value="' + year + '">' + year + '</option>');
                             }
-                          }
-                        ]
-                      });
-                    }
-                  });
-                };
-
-                // 初始获取和渲染默认年份的数据
-                fetchAndRenderData("2020");
-
-                // 年份选择器的事件监听器
-                document.getElementById("yearSelector").addEventListener("change", (event) => {
-                  const selectedYear = event.target.value;
-                  fetchAndRenderData(selectedYear);
-                  document.getElementById("selectedYear").innerText = `| ${selectedYear}`;
-                });
-              });
-            </script>
-            <!-- End Pie Chart -->
-
-          </div>
+                        </script>
+                    </select>
+                    <div id="pieChart" style="min-height: 400px;" class="echart"></div>
+                </div>
+                <p>本表格用于展示日本在特定年份的投资类别（以GDP为基础，提取了以下三个类别的百分比数据（占GDP的百分比）：
+                    average_value_Claims on central government, etc. (% GDP) - 对中央政府等的要求（占GDP的百分比）
+                    average_value_Foreign direct investment, net inflows (% of GDP) - 外商直接投资净流入（占GDP的百分比）
+                    average_value_Foreign direct investment, net outflows (% of GDP) -
+                    外商直接投资净流出（占GDP的百分比）。用户可以通过下拉选择框选择年份（从1990年至2020年）。
+                    当用户选择不同年份时，图表会自动更新显示对应年份的数据。
+                    选中的年份会在标题旁边显示（例如 | 2000）。</p>
+    
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                        const fetchAndRenderData = (year) => {
+                            Papa.parse("../../data/financial-sector/financial-sector.csv", {
+                                download: true,
+                                header: true,
+                                complete: function (results) {
+                                    const data = results.data;
+    
+                                    // 过滤出日本的数据
+                                    const japanData = data.filter(item => item["Country Name"] === "Japan" && item["Year"] === year);
+    
+                                    if (japanData.length === 0) {
+                                        alert("No data available for the selected year.");
+                                        return;
+                                    }
+    
+                                    // 简化后的类别名称
+                                    const simplifiedCategories = [
+                                        "Claims",
+                                        "Foreign inflows",
+                                        "Foreign outflows"
+                                    ];
+    
+                                    // 对应的原始列名称
+                                    const importCategories = [
+                                        "average_value_Claims on central government, etc. (% GDP)",
+                                        "average_value_Foreign direct investment, net inflows (% of GDP)",
+                                        "average_value_Foreign direct investment, net outflows (% of GDP)"
+                                    ];
+    
+                                    const values = importCategories.map(category => parseFloat(japanData[0][category]));
+    
+                                    // 绘制饼图
+                                    echarts.init(document.querySelector("#pieChart")).setOption({
+                                        title: {
+                                            text: `Japan Investment Categories in ${year}`,
+                                            subtext: 'Based on GDP',
+                                            left: 'center'
+                                        },
+                                        tooltip: {
+                                            trigger: 'item'
+                                        },
+                                        legend: {
+                                            orient: 'vertical',
+                                            left: 'left'
+                                        },
+                                        series: [
+                                            {
+                                                name: 'Investment Category',
+                                                type: 'pie',
+                                                radius: '50%',
+                                                data: simplifiedCategories.map((category, index) => ({
+                                                    value: values[index],
+                                                    name: category
+                                                })),
+                                                emphasis: {
+                                                    itemStyle: {
+                                                        shadowBlur: 10,
+                                                        shadowOffsetX: 0,
+                                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    });
+                                }
+                            });
+                        };
+    
+                        // 初始获取和渲染默认年份的数据
+                        fetchAndRenderData("2000");
+    
+                        // 年份选择器的事件监听器
+                        document.getElementById("yearSelector").addEventListener("change", (event) => {
+                            const selectedYear = event.target.value;
+                            fetchAndRenderData(selectedYear);
+                            document.getElementById("selectedYear").innerText = `| ${selectedYear}`;
+                        });
+                    });
+                </script>
+                <!-- End Pie Chart -->
+    
+            </div>
         </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Pie Chart Discription</h5>
-
-            <!-- Line Chart -->
-            <div id="lineChart"></div>
-
-
-            <p id="test for line">本表格用于展示日本在特定年份的投资类别（以GDP为基础，提取了以下三个类别的百分比数据（占GDP的百分比）：
-              average_value_Claims on central government, etc. (% GDP) - 对中央政府等的要求（占GDP的百分比）
-              average_value_Foreign direct investment, net inflows (% of GDP) - 外商直接投资净流入（占GDP的百分比）
-              average_value_Foreign direct investment, net outflows (% of GDP) -
-              外商直接投资净流出（占GDP的百分比）。用户可以通过下拉选择框选择年份（从1990年至2020年）。
-              当用户选择不同年份时，图表会自动更新显示对应年份的数据。
-              选中的年份会在标题旁边显示（例如 | 2020）。</p>
-
-            <!-- End Line Chart -->
-
-          </div>
-        </div>
-      </div>
+    </div>
+    
+      
 
       </div>
     </section>
@@ -837,7 +781,6 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      Copyright &copy; 2022.Company name All rights reserved.
       <div class="credits">
         <!-- All the links in the footer should remain intact. -->
         <!-- You can delete the links only if you purchased the pro version. -->
