@@ -285,22 +285,7 @@
                 </div>
                 
 
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">这里是介绍</h5>
-
-                            <!-- Line Chart -->
-                            <div id="lineChart"></div>
-
-
-                            <p id="test for line">这里是内容</p>
-
-                            <!-- End Line Chart -->
-
-                        </div>
-                    </div>
-                </div>
+                
 
 
 
@@ -310,170 +295,9 @@
 
 
 
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Japan Trade Partnership</h5>
-                            <div class="chart-container">
-                                <select class="data-type-selector" id="dataTypeSelector">
-                                    <option value="import">Import Data</option>
-                                    <option value="export">Export Data</option>
-                                </select>
-                                <select class="year-selector" id="yearSelector">
-                                    <!-- 从1990年到2024年的年份选项 -->
-                                    <script>
-                                        for (let year = 1990; year <= 2024; year++) {
-                                            document.write('<option value="' + year + '">' + year + '</option>');
-                                        }
-                                    </script>
-                                </select>
-                                <div id="relationshipGraph" style="min-height: 400px;" class="echart"></div>
-                            </div>
+                
 
-                            <script>
-                                document.addEventListener("DOMContentLoaded", () => {
-                                    const importCategories = [
-                                        "average_value_Merchandise imports from economies in the Arab World (% of total merchandise imports)",
-                                        "average_value_Merchandise imports from high-income economies (% of total merchandise imports)",
-                                        "average_value_Merchandise imports from low- and middle-income economies in East Asia & Pacific (% of total merchandise imports)",
-                                        "average_value_Merchandise imports from low- and middle-income economies in Europe & Central Asia (% of total merchandise imports)",
-                                        "average_value_Merchandise imports from low- and middle-income economies in Latin America & the Caribbean (% of total merchandise imports)",
-                                        "average_value_Merchandise imports from low- and middle-income economies in Middle East & North Africa (% of total merchandise imports)",
-                                        "average_value_Merchandise imports from low- and middle-income economies in South Asia (% of total merchandise imports)",
-                                        "average_value_Merchandise imports from low- and middle-income economies in Sub-Saharan Africa (% of total merchandise imports)"
-                                    ];
-
-                                    const exportCategories = [
-                                        "average_value_Merchandise exports to economies in the Arab World (% of total merchandise exports)",
-                                        "average_value_Merchandise exports to high-income economies (% of total merchandise exports)",
-                                        "average_value_Merchandise exports to low- and middle-income economies in East Asia & Pacific (% of total merchandise exports)",
-                                        "average_value_Merchandise exports to low- and middle-income economies in Europe & Central Asia (% of total merchandise exports)",
-                                        "average_value_Merchandise exports to low- and middle-income economies in Latin America & the Caribbean (% of total merchandise exports)",
-                                        "average_value_Merchandise exports to low- and middle-income economies in Middle East & North Africa (% of total merchandise exports)",
-                                        "average_value_Merchandise exports to low- and middle-income economies in South Asia (% of total merchandise exports)",
-                                        "average_value_Merchandise exports to low- and middle-income economies in Sub-Saharan Africa (% of total merchandise exports)"
-                                    ];
-
-                                    const simplifiedCategories = [
-                                        "Arab World",
-                                        "High-income economies",
-                                        "East Asia & Pacific",
-                                        "Europe & Central Asia",
-                                        "Latin America & Caribbean",
-                                        "Middle East & North Africa",
-                                        "South Asia",
-                                        "Sub-Saharan Africa"
-                                    ];
-
-                                    const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#FFC300', '#33FFF5', '#F533FF'];
-
-                                    const fetchDataAndRenderChart = (dataType, year) => {
-                                        Papa.parse("../../data/trade/trade.csv", {
-                                            download: true,
-                                            header: true,
-                                            complete: function (results) {
-                                                const data = results.data;
-
-                                                // 过滤出日本的数据
-                                                const japanData = data.filter(item => item["Country Name"] === "Japan" && item["Year"] === year);
-
-                                                if (japanData.length === 0) {
-                                                    alert("No data available for the selected year.");
-                                                    return;
-                                                }
-
-                                                // 提取对应的数据
-                                                const categories = dataType === 'import' ? importCategories : exportCategories;
-                                                const values = categories.map(category => parseFloat(japanData[0][category]));
-
-                                                // 创建关系图数据
-                                                const nodes = [{ name: "Japan", symbolSize: 50, itemStyle: { color: '#FFD700' } }];
-                                                const edges = [];
-
-                                                simplifiedCategories.forEach((category, index) => {
-                                                    const value = values[index];
-                                                    const size = Math.sqrt(value) * 10;
-                                                    nodes.push({ name: category, symbolSize: size, value: value, itemStyle: { color: colors[index] } });
-                                                    edges.push({ source: "Japan", target: category, lineStyle: { width: value } });
-                                                });
-
-                                                // 绘制关系图
-                                                echarts.init(document.querySelector("#relationshipGraph")).setOption({
-                                                    title: {
-                                                        text: `Japan ${dataType === 'import' ? 'Import' : 'Export'} Volume from Different Regions in ${year}`,
-                                                        subtext: `Based on percentage of total merchandise ${dataType === 'import' ? 'imports' : 'exports'}`,
-                                                        left: 'center'
-                                                    },
-                                                    tooltip: {
-                                                        formatter: function (params) {
-                                                            if (params.dataType === 'node') {
-                                                                return `${params.name}: ${params.value ? params.value.toFixed(2) + '%' : ''}`;
-                                                            } else {
-                                                                return `${params.source} -> ${params.target}: ${params.value.toFixed(2)}%`;
-                                                            }
-                                                        }
-                                                    },
-                                                    series: [{
-                                                        type: 'graph',
-                                                        layout: 'force',
-                                                        force: {
-                                                            repulsion: 200,
-                                                            edgeLength: [50, 200]
-                                                        },
-                                                        roam: true,
-                                                        label: {
-                                                            show: true
-                                                        },
-                                                        data: nodes,
-                                                        links: edges,
-                                                        lineStyle: {
-                                                            color: 'source',
-                                                            curveness: 0.3
-                                                        }
-                                                    }]
-                                                });
-                                            }
-                                        });
-                                    };
-
-                                    document.getElementById("dataTypeSelector").addEventListener("change", () => {
-                                        const selectedYear = document.getElementById("yearSelector").value;
-                                        const selectedDataType = document.getElementById("dataTypeSelector").value;
-                                        fetchDataAndRenderChart(selectedDataType, selectedYear);
-                                    });
-
-                                    document.getElementById("yearSelector").addEventListener("change", (event) => {
-                                        const selectedYear = event.target.value;
-                                        const selectedDataType = document.getElementById("dataTypeSelector").value;
-                                        fetchDataAndRenderChart(selectedDataType, selectedYear);
-                                    });
-
-                                    // 初始获取和渲染默认年份的数据
-                                    fetchDataAndRenderChart("import", "2010");
-                                });
-                            </script>
-                            <!-- End Relationship Graph -->
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">这里是介绍</h5>
-
-                            <!-- Line Chart -->
-                            <div id="lineChart"></div>
-
-
-                            <p id="test for line">这里是内容</p>
-
-                            <!-- End Line Chart -->
-
-                        </div>
-                    </div>
-                </div>
+                
 
 
 
@@ -493,7 +317,7 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Trade Indicators Score</h5>
+                            <h5 class="card-title">Scoring of economic indicators</h5>
 
                             <!-- Year Selection Dropdown -->
                             <select id="yearSelect1" class="form-select mb-3">
@@ -970,120 +794,28 @@
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">World Map GDP Indicators</h5>
-                            <!-- Map Container -->
-                            <div id="worldMap" style="height: 500px;"></div>
+                            <h5 class="card-title">Map visualization</h5>
+                
+                            <!-- Line Chart -->
+                            <div id="lineChart"></div>
+                
+                            <p id="test for line">View the economic data of different countries in different colors of the map, including GDP, GDP per capita, GDP growth rate, domestic savings ratio and gross National income</p>
+                
+                            <!-- Jump Button -->
+                            <button id="jumpButton" class="btn btn-primary">View map</button>
+                
+                            <!-- End Line Chart -->
+                
                         </div>
                     </div>
                 </div>
-
+                
                 <script>
-                    document.addEventListener("DOMContentLoaded", () => {
-                        let data;
-                        let map;
-
-                        // Function to render world map with data
-                        function renderWorldMap(year) {
-                            const yearData = data.filter(item => item["Year"] === year);
-
-                            if (!map) {
-                                map = L.map('worldMap').setView([20, 0], 2);
-                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                }).addTo(map);
-                            }
-
-                            // Clear existing layers
-                            if (map.hasLayer(map.currentLayer)) {
-                                map.removeLayer(map.currentLayer);
-                            }
-
-                            // Load GeoJSON data from an online source
-                            fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
-                                .then(response => response.json())
-                                .then(worldGeoJSON => {
-                                    map.currentLayer = L.geoJSON(worldGeoJSON, {
-                                        style: function (feature) {
-                                            const countryData = yearData.find(item => item["Country Name"] === feature.properties.name);
-                                            return {
-                                                fillColor: getColor(countryData ? countryData["average_value_GDP (current US$)"] : 0),
-                                                weight: 2,
-                                                opacity: 1,
-                                                color: 'white',
-                                                dashArray: '3',
-                                                fillOpacity: 0.7
-                                            };
-                                        },
-                                        onEachFeature: function (feature, layer) {
-                                            layer.on({
-                                                mouseover: highlightFeature,
-                                                mouseout: resetHighlight
-                                            });
-                                        }
-                                    }).addTo(map);
-                                });
-                        }
-
-                        // Function to get color based on value
-                        function getColor(d) {
-                            return d > 1000000000000 ? '#800026' :
-                                d > 500000000000 ? '#BD0026' :
-                                    d > 200000000000 ? '#E31A1C' :
-                                        d > 100000000000 ? '#FC4E2A' :
-                                            d > 50000000000 ? '#FD8D3C' :
-                                                d > 20000000000 ? '#FEB24C' :
-                                                    d > 10000000000 ? '#FED976' :
-                                                        '#FFEDA0';
-                        }
-
-                        // Highlight feature on hover
-                        function highlightFeature(e) {
-                            const layer = e.target;
-                            layer.setStyle({
-                                weight: 3,
-                                color: '#666',
-                                dashArray: '',
-                                fillOpacity: 0.7
-                            });
-                        }
-
-                        // Reset highlight
-                        function resetHighlight(e) {
-                            map.currentLayer.resetStyle(e.target);
-                        }
-
-                        // Fetch and parse CSV data
-                        Papa.parse("../../data/economy-and-growth/economy-and-growth.csv", {
-                            download: true,
-                            header: true,
-                            complete: function (results) {
-                                data = results.data;
-                                const yearSelect = document.getElementById("yearSelect");
-
-                                // Populate the year dropdown
-                                const years = [...new Set(data.map(item => item["Year"]))];
-                                years.forEach(year => {
-                                    const option = document.createElement("option");
-                                    option.value = year;
-                                    option.text = year;
-                                    yearSelect.appendChild(option);
-                                });
-
-                                // Set default year to 2000 and render its map
-                                const defaultYear = "2008";
-                                yearSelect.value = defaultYear;
-                                renderWorldMap(defaultYear);
-
-                                // Event listener for year selection
-                                yearSelect.addEventListener("change", () => {
-                                    const selectedYear = yearSelect.value;
-                                    renderWorldMap(selectedYear);
-                                });
-                            }
-                        });
+                    document.getElementById('jumpButton').addEventListener('click', function() {
+                        window.location.href = 'map.html';
                     });
                 </script>
-
+                
 
 
 
