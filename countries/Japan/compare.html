@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
+
+    <!-- PapaParse CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet">
+
+    <!-- =======================================================
+  * Template Name: NiceAdmin - v2.2.2
+  
+  
+  
+  ======================================================== -->
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="assets/img/logo.png" alt="">
+                <span class="d-none d-lg-block">NiceAdmin</span>
+            </a>
+
+        </div><!-- End Logo -->
+
+    </header><!-- End Header -->
+    <main id="main" class="main">
+        <section class="section">
+            <div class="row">
+
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Overview of Japan trade indicators</h5>
+
+                            <!-- Dropdown to switch between data views -->
+                            <div id="dropdown-container">
+                                <select id="dataSelector">
+                                    <option value="tradeValues">Trade Values</option>
+                                    <option value="tradeIndices">Trade Indices</option>
+                                    <option value="tradeSurplus">Trade Surplus</option>
+                                </select>
+                            </div>
+
+                            <!-- Area Chart -->
+                            <div id="areaChart"></div>
+
+                            <!-- Slider for selecting the start time range -->
+                            <div id="slider-container">
+                                <input type="range" id="slider" min="0" max="100" value="0" step="1">
+                            </div>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    Papa.parse("../../data/trade/trade.csv", {
+                                        download: true,
+                                        header: true,
+                                        complete: function (results) {
+                                            const data = results.data;
+
+                                            // 过滤出日本的数据
+                                            const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                                            // 提取年份和数据并进行排序
+                                            const years = [];
+                                            const importValues = [];
+                                            const exportValues = [];
+                                            const tradeSurplus = [];
+                                            const exportIndex = [];
+                                            const importIndex = [];
+                                            const netTradeIndex = [];
+                                            japanData.forEach(item => {
+                                                const year = parseInt(item["Year"]);
+                                                const importValue = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                                                const exportValue = parseFloat(item["average_value_Merchandise exports (current US$)"]);
+                                                const surplus = exportValue - importValue;
+
+                                                years.push(year);
+                                                importValues.push(importValue);
+                                                exportValues.push(exportValue);
+                                                tradeSurplus.push(surplus);
+                                                exportIndex.push(parseFloat(item["average_value_Export value index (2000 = 100)"]));
+                                                importIndex.push(parseFloat(item["average_value_Import value index (2000 = 100)"]));
+                                                netTradeIndex.push(parseFloat(item["average_value_Net barter terms of trade index (2000 = 100)"]));
+                                            });
+
+                                            // 对年份进行排序
+                                            const sortedIndices = years.map((year, index) => index).sort((a, b) => years[a] - years[b]);
+                                            const sortedYears = sortedIndices.map(index => years[index]);
+                                            const sortedImportValues = sortedIndices.map(index => importValues[index]);
+                                            const sortedExportValues = sortedIndices.map(index => exportValues[index]);
+                                            const sortedTradeSurplus = sortedIndices.map(index => tradeSurplus[index]);
+                                            const sortedExportIndex = sortedIndices.map(index => exportIndex[index]);
+                                            const sortedImportIndex = sortedIndices.map(index => importIndex[index]);
+                                            const sortedNetTradeIndex = sortedIndices.map(index => netTradeIndex[index]);
+
+                                            // 创建初始图表配置
+                                            let options = {
+                                                series: [
+                                                    {
+                                                        name: 'Import Value',
+                                                        data: sortedImportValues
+                                                    },
+                                                    {
+                                                        name: 'Export Value',
+                                                        data: sortedExportValues
+                                                    }
+                                                ],
+                                                chart: {
+                                                    type: 'area',
+                                                    height: 350,
+                                                    zoom: {
+                                                        type: 'x',
+                                                        enabled: true,
+                                                        autoScaleYaxis: true
+                                                    }
+                                                },
+                                                dataLabels: {
+                                                    enabled: false
+                                                },
+                                                stroke: {
+                                                    curve: 'smooth'
+                                                },
+                                                fill: {
+                                                    type: 'gradient',
+                                                    gradient: {
+                                                        shadeIntensity: 1,
+                                                        opacityFrom: 0.7,
+                                                        opacityTo: 0.9,
+                                                    }
+                                                },
+                                                grid: {
+                                                    row: {
+                                                        colors: ['#f3f3f3', 'transparent'],
+                                                        opacity: 0.5
+                                                    },
+                                                },
+                                                xaxis: {
+                                                    categories: sortedYears,
+                                                    title: {
+                                                        text: 'Year'
+                                                    }
+                                                },
+                                                yaxis: {
+                                                    title: {
+                                                        text: 'Value (US$)'
+                                                    }
+                                                },
+                                                tooltip: {
+                                                    shared: true,
+                                                    intersect: false,
+                                                    y: {
+                                                        formatter: function (val) {
+                                                            return "$" + val;
+                                                        }
+                                                    }
+                                                }
+                                            };
+
+                                            // 渲染初始图表
+                                            let chart = new ApexCharts(document.querySelector("#areaChart"), options);
+                                            chart.render();
+
+                                            const slider = document.getElementById('slider');
+                                            slider.addEventListener('input', function () {
+                                                const sliderValue = parseInt(this.value);
+                                                const minIndex = Math.floor((sliderValue / 100) * (sortedYears.length - 1));
+
+                                                // 过滤数据到选择的年份范围内
+                                                const filteredYears = sortedYears.slice(minIndex);
+                                                const filteredImportValues = sortedImportValues.slice(minIndex);
+                                                const filteredExportValues = sortedExportValues.slice(minIndex);
+                                                const filteredTradeSurplus = sortedTradeSurplus.slice(minIndex);
+                                                const filteredExportIndex = sortedExportIndex.slice(minIndex);
+                                                const filteredImportIndex = sortedImportIndex.slice(minIndex);
+                                                const filteredNetTradeIndex = sortedNetTradeIndex.slice(minIndex);
+
+                                                // 更新图表数据
+                                                if (chartType === 'tradeValues') {
+                                                    chart.updateSeries([
+                                                        {
+                                                            name: 'Import Value',
+                                                            data: filteredImportValues
+                                                        },
+                                                        {
+                                                            name: 'Export Value',
+                                                            data: filteredExportValues
+                                                        }
+                                                    ]);
+                                                } else if (chartType === 'tradeIndices') {
+                                                    chart.updateSeries([
+                                                        {
+                                                            name: 'Export Value Index',
+                                                            data: filteredExportIndex
+                                                        },
+                                                        {
+                                                            name: 'Import Value Index',
+                                                            data: filteredImportIndex
+                                                        },
+                                                        {
+                                                            name: 'Net Barter Terms of Trade Index',
+                                                            data: filteredNetTradeIndex
+                                                        }
+                                                    ]);
+                                                } else if (chartType === 'tradeSurplus') {
+                                                    chart.updateSeries([
+                                                        {
+                                                            name: 'Trade Surplus',
+                                                            data: filteredTradeSurplus
+                                                        }
+                                                    ]);
+                                                }
+
+                                                // 更新图表X轴和其他选项
+                                                chart.updateOptions({
+                                                    xaxis: {
+                                                        categories: filteredYears
+                                                    },
+                                                    fill: chartType === 'tradeValues' ? {
+                                                        type: 'gradient',
+                                                        gradient: {
+                                                            shadeIntensity: 1,
+                                                            opacityFrom: 0.7,
+                                                            opacityTo: 0.9,
+                                                        }
+                                                    } : {
+                                                        type: 'solid'
+                                                    },
+                                                    annotations: chartType === 'tradeSurplus' ? {
+                                                        yaxis: [
+                                                            {
+                                                                y: 0,
+                                                                borderColor: '#FF0000',
+                                                                label: {
+                                                                    borderColor: '#FF0000',
+                                                                    style: {
+                                                                        color: '#fff',
+                                                                        background: '#FF0000'
+                                                                    },
+                                                                    text: 'Base Line (0)'
+                                                                }
+                                                            }
+                                                        ]
+                                                    } : chartType === 'tradeIndices' ? {
+                                                        yaxis: [
+                                                            {
+                                                                y: 100,
+                                                                borderColor: '#FF0000',
+                                                                label: {
+                                                                    borderColor: '#FF0000',
+                                                                    style: {
+                                                                        color: '#fff',
+                                                                        background: '#FF0000'
+                                                                    },
+                                                                    text: 'Base Index (100)'
+                                                                }
+                                                            }
+                                                        ]
+                                                    } : {}
+                                                });
+                                            });
+
+                                            let chartType = 'tradeValues';
+                                            document.getElementById('dataSelector').addEventListener('change', function () {
+                                                chartType = this.value;
+                                                if (chartType === 'tradeValues') {
+                                                    chart.updateSeries([
+                                                        {
+                                                            name: 'Import Value',
+                                                            data: sortedImportValues
+                                                        },
+                                                        {
+                                                            name: 'Export Value',
+                                                            data: sortedExportValues
+                                                        }
+                                                    ]);
+                                                    chart.updateOptions({
+                                                        fill: {
+                                                            type: 'gradient',
+                                                            gradient: {
+                                                                shadeIntensity: 1,
+                                                                opacityFrom: 0.7,
+                                                                opacityTo: 0.9,
+                                                            }
+                                                        },
+                                                        yaxis: {
+                                                            title: {
+                                                                text: 'Value (US$)'
+                                                            }
+                                                        },
+                                                        annotations: {
+                                                            yaxis: []
+                                                        }
+                                                    });
+                                                } else if (chartType === 'tradeIndices') {
+                                                    chart.updateSeries([
+                                                        {
+                                                            name: 'Export Value Index',
+                                                            data: sortedExportIndex
+                                                        },
+                                                        {
+                                                            name: 'Import Value Index',
+                                                            data: sortedImportIndex
+                                                        },
+                                                        {
+                                                            name: 'Net Barter Terms of Trade Index',
+                                                            data: sortedNetTradeIndex
+                                                        }
+                                                    ]);
+                                                    chart.updateOptions({
+                                                        fill: {
+                                                            type: 'solid'
+                                                        },
+                                                        yaxis: {
+                                                            title: {
+                                                                text: 'Index (2000 = 100)'
+                                                            }
+                                                        },
+                                                        annotations: {
+                                                            yaxis: [
+                                                                {
+                                                                    y: 100,
+                                                                    borderColor: '#FF0000',
+                                                                    label: {
+                                                                        borderColor: '#FF0000',
+                                                                        style: {
+                                                                            color: '#fff',
+                                                                            background: '#FF0000'
+                                                                        },
+                                                                        text: 'Base Index (100)'
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    });
+                                                } else if (chartType === 'tradeSurplus') {
+                                                    chart.updateSeries([
+                                                        {
+                                                            name: 'Trade Surplus',
+                                                            data: sortedTradeSurplus
+                                                        }
+                                                    ]);
+                                                    chart.updateOptions({
+                                                        fill: {
+                                                            type: 'solid'
+                                                        },
+                                                        yaxis: {
+                                                            title: {
+                                                                text: 'Value (US$)'
+                                                            }
+                                                        },
+                                                        annotations: {
+                                                            yaxis: [
+                                                                {
+                                                                    y: 0,
+                                                                    borderColor: '#FF0000',
+                                                                    label: {
+                                                                        borderColor: '#FF0000',
+                                                                        style: {
+                                                                            color: '#fff',
+                                                                            background: '#FF0000'
+                                                                        },
+                                                                        text: 'Base Line (0)'
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    });
+                                });
+                            </script>
+
+                            <!-- End Area Chart -->
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">这里是介绍</h5>
+
+                            <!-- Line Chart -->
+                            <div id="lineChart"></div>
+
+
+                            <p id="test for line">这里是内容</p>
+
+                            <!-- End Line Chart -->
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Share of Japan's imports and exports</h5>
+                            <button id="toggleButton">Show Import Data</button>
+                            <!-- Stacked Column Chart -->
+                            <div id="columnChart"></div>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    const importCategories = [
+                                        "average_value_Computer, communications and other services (% of commercial service imports)",
+                                        "average_value_Food imports (% of merchandise imports)",
+                                        "average_value_Fuel imports (% of merchandise imports)",
+                                        "average_value_ICT goods imports (% of total goods imports)",
+                                        "average_value_Insurance and financial services (% of commercial service imports)",
+                                        "average_value_Manufactures imports (% of merchandise imports)"
+                                    ];
+
+                                    const exportCategories = [
+                                        "average_value_Computer, communications and other services (% of commercial service exports)",
+                                        "average_value_Food exports (% of merchandise exports)",
+                                        "average_value_Fuel exports (% of merchandise exports)",
+                                        "average_value_ICT goods exports (% of total goods exports)",
+                                        "average_value_Insurance and financial services (% of commercial service exports)",
+                                        "average_value_Manufactures exports (% of merchandise exports)"
+                                    ];
+
+                                    const simplifiedCategories = [
+                                        "Computer, communications and other services",
+                                        "Food",
+                                        "Fuel",
+                                        "ICT goods",
+                                        "Insurance and financial services",
+                                        "Manufactures"
+                                    ];
+
+                                    const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#FFC300'];
+
+                                    let showingImports = false;
+
+                                    const fetchDataAndRenderChart = (isImport) => {
+                                        Papa.parse("../../data/trade/trade.csv", {
+                                            download: true,
+                                            header: true,
+                                            complete: function (results) {
+                                                const data = results.data;
+
+                                                // 过滤出日本的数据
+                                                const japanData = data.filter(item => item["Country Name"] === "Japan");
+
+                                                // 对年份排序
+                                                const sortedJapanData = japanData.sort((a, b) => parseInt(a["Year"]) - parseInt(b["Year"]));
+
+                                                // 提取年份
+                                                const years = sortedJapanData.map(item => parseInt(item["Year"]));
+
+                                                // 提取总进口或出口额
+                                                const totalTrade = sortedJapanData.map(item => parseFloat(isImport ? item["average_value_Merchandise imports (current US$)"] : item["average_value_Merchandise exports (current US$)"]));
+
+                                                // 提取各类商品的贸易数据
+                                                const categories = isImport ? importCategories : exportCategories;
+
+                                                const seriesData = categories.map((category, index) => ({
+                                                    name: simplifiedCategories[index],
+                                                    data: sortedJapanData.map((item, idx) => {
+                                                        const percentage = parseFloat(item[category]);
+                                                        return (percentage / 100) * totalTrade[idx];
+                                                    })
+                                                }));
+
+                                                const columnChart = new ApexCharts(document.querySelector("#columnChart"), {
+                                                    series: seriesData,
+                                                    chart: {
+                                                        type: 'bar',
+                                                        height: 350,
+                                                        stacked: true,
+                                                        animations: {
+                                                            enabled: false // 禁用动画
+                                                        }
+                                                    },
+                                                    colors: colors,
+                                                    plotOptions: {
+                                                        bar: {
+                                                            horizontal: false,
+                                                            columnWidth: '55%',
+                                                            endingShape: 'rounded'
+                                                        },
+                                                    },
+                                                    dataLabels: {
+                                                        enabled: false
+                                                    },
+                                                    stroke: {
+                                                        show: true,
+                                                        width: 2,
+                                                        colors: ['transparent']
+                                                    },
+                                                    xaxis: {
+                                                        categories: years,
+                                                        title: {
+                                                            text: 'Year'
+                                                        }
+                                                    },
+                                                    yaxis: {
+                                                        title: {
+                                                            text: isImport ? 'Import Value (US$)' : 'Export Value (US$)'
+                                                        }
+                                                    },
+                                                    fill: {
+                                                        opacity: 1
+                                                    },
+                                                    tooltip: {
+                                                        y: {
+                                                            formatter: function (val) {
+                                                                return "$ " + val.toFixed(2);
+                                                            }
+                                                        }
+                                                    }
+                                                });
+
+                                                columnChart.render();
+                                            }
+                                        });
+                                    };
+
+                                    document.getElementById("toggleButton").addEventListener("click", () => {
+                                        showingImports = !showingImports;
+                                        document.getElementById("toggleButton").textContent = showingImports ? "Show Export Data" : "Show Import Data";
+                                        fetchDataAndRenderChart(showingImports);
+                                    });
+
+                                    // 初始显示出口数据
+                                    fetchDataAndRenderChart(showingImports);
+                                });
+                            </script>
+
+                            <!-- End Stacked Column Chart -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">这里是介绍</h5>
+
+                            <!-- Line Chart -->
+                            <div id="lineChart"></div>
+
+
+                            <p id="test for line">这里是内容</p>
+
+                            <!-- End Line Chart -->
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Japan Trade Partnership</h5>
+                            <div class="chart-container">
+                                <select class="data-type-selector" id="dataTypeSelector">
+                                    <option value="import">Import Data</option>
+                                    <option value="export">Export Data</option>
+                                </select>
+                                <select class="year-selector" id="yearSelector">
+                                    <!-- 从1990年到2024年的年份选项 -->
+                                    <script>
+                                        for (let year = 1990; year <= 2024; year++) {
+                                            document.write('<option value="' + year + '">' + year + '</option>');
+                                        }
+                                    </script>
+                                </select>
+                                <div id="relationshipGraph" style="min-height: 400px;" class="echart"></div>
+                            </div>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    const importCategories = [
+                                        "average_value_Merchandise imports from economies in the Arab World (% of total merchandise imports)",
+                                        "average_value_Merchandise imports from high-income economies (% of total merchandise imports)",
+                                        "average_value_Merchandise imports from low- and middle-income economies in East Asia & Pacific (% of total merchandise imports)",
+                                        "average_value_Merchandise imports from low- and middle-income economies in Europe & Central Asia (% of total merchandise imports)",
+                                        "average_value_Merchandise imports from low- and middle-income economies in Latin America & the Caribbean (% of total merchandise imports)",
+                                        "average_value_Merchandise imports from low- and middle-income economies in Middle East & North Africa (% of total merchandise imports)",
+                                        "average_value_Merchandise imports from low- and middle-income economies in South Asia (% of total merchandise imports)",
+                                        "average_value_Merchandise imports from low- and middle-income economies in Sub-Saharan Africa (% of total merchandise imports)"
+                                    ];
+
+                                    const exportCategories = [
+                                        "average_value_Merchandise exports to economies in the Arab World (% of total merchandise exports)",
+                                        "average_value_Merchandise exports to high-income economies (% of total merchandise exports)",
+                                        "average_value_Merchandise exports to low- and middle-income economies in East Asia & Pacific (% of total merchandise exports)",
+                                        "average_value_Merchandise exports to low- and middle-income economies in Europe & Central Asia (% of total merchandise exports)",
+                                        "average_value_Merchandise exports to low- and middle-income economies in Latin America & the Caribbean (% of total merchandise exports)",
+                                        "average_value_Merchandise exports to low- and middle-income economies in Middle East & North Africa (% of total merchandise exports)",
+                                        "average_value_Merchandise exports to low- and middle-income economies in South Asia (% of total merchandise exports)",
+                                        "average_value_Merchandise exports to low- and middle-income economies in Sub-Saharan Africa (% of total merchandise exports)"
+                                    ];
+
+                                    const simplifiedCategories = [
+                                        "Arab World",
+                                        "High-income economies",
+                                        "East Asia & Pacific",
+                                        "Europe & Central Asia",
+                                        "Latin America & Caribbean",
+                                        "Middle East & North Africa",
+                                        "South Asia",
+                                        "Sub-Saharan Africa"
+                                    ];
+
+                                    const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#FFC300', '#33FFF5', '#F533FF'];
+
+                                    const fetchDataAndRenderChart = (dataType, year) => {
+                                        Papa.parse("../../data/trade/trade.csv", {
+                                            download: true,
+                                            header: true,
+                                            complete: function (results) {
+                                                const data = results.data;
+
+                                                // 过滤出日本的数据
+                                                const japanData = data.filter(item => item["Country Name"] === "Japan" && item["Year"] === year);
+
+                                                if (japanData.length === 0) {
+                                                    alert("No data available for the selected year.");
+                                                    return;
+                                                }
+
+                                                // 提取对应的数据
+                                                const categories = dataType === 'import' ? importCategories : exportCategories;
+                                                const values = categories.map(category => parseFloat(japanData[0][category]));
+
+                                                // 创建关系图数据
+                                                const nodes = [{ name: "Japan", symbolSize: 50, itemStyle: { color: '#FFD700' } }];
+                                                const edges = [];
+
+                                                simplifiedCategories.forEach((category, index) => {
+                                                    const value = values[index];
+                                                    const size = Math.sqrt(value) * 10;
+                                                    nodes.push({ name: category, symbolSize: size, value: value, itemStyle: { color: colors[index] } });
+                                                    edges.push({ source: "Japan", target: category, lineStyle: { width: value } });
+                                                });
+
+                                                // 绘制关系图
+                                                echarts.init(document.querySelector("#relationshipGraph")).setOption({
+                                                    title: {
+                                                        text: `Japan ${dataType === 'import' ? 'Import' : 'Export'} Volume from Different Regions in ${year}`,
+                                                        subtext: `Based on percentage of total merchandise ${dataType === 'import' ? 'imports' : 'exports'}`,
+                                                        left: 'center'
+                                                    },
+                                                    tooltip: {
+                                                        formatter: function (params) {
+                                                            if (params.dataType === 'node') {
+                                                                return `${params.name}: ${params.value ? params.value.toFixed(2) + '%' : ''}`;
+                                                            } else {
+                                                                return `${params.source} -> ${params.target}: ${params.value.toFixed(2)}%`;
+                                                            }
+                                                        }
+                                                    },
+                                                    series: [{
+                                                        type: 'graph',
+                                                        layout: 'force',
+                                                        force: {
+                                                            repulsion: 200,
+                                                            edgeLength: [50, 200]
+                                                        },
+                                                        roam: true,
+                                                        label: {
+                                                            show: true
+                                                        },
+                                                        data: nodes,
+                                                        links: edges,
+                                                        lineStyle: {
+                                                            color: 'source',
+                                                            curveness: 0.3
+                                                        }
+                                                    }]
+                                                });
+                                            }
+                                        });
+                                    };
+
+                                    document.getElementById("dataTypeSelector").addEventListener("change", () => {
+                                        const selectedYear = document.getElementById("yearSelector").value;
+                                        const selectedDataType = document.getElementById("dataTypeSelector").value;
+                                        fetchDataAndRenderChart(selectedDataType, selectedYear);
+                                    });
+
+                                    document.getElementById("yearSelector").addEventListener("change", (event) => {
+                                        const selectedYear = event.target.value;
+                                        const selectedDataType = document.getElementById("dataTypeSelector").value;
+                                        fetchDataAndRenderChart(selectedDataType, selectedYear);
+                                    });
+
+                                    // 初始获取和渲染默认年份的数据
+                                    fetchDataAndRenderChart("import", "2010");
+                                });
+                            </script>
+                            <!-- End Relationship Graph -->
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Trade Indicators Score</h5>
+
+                            <!-- Year Selection Dropdown -->
+                            <select id="yearSelect1" class="form-select mb-3">
+                                <option value="2020" selected>2020</option>
+                                <option value="2010">2010</option>
+                                <option value="2000">2000</option>
+                                <option value="1990">1990</option>
+                            </select>
+
+                            <!-- Country Selection Dropdown -->
+                            <select id="countrySelect" class="form-select mb-3">
+                                <option value="" disabled selected>Select Country</option>
+                                <option value="China">China</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Malaysia">Malaysia</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="South Korea">South Korea</option>
+                                <option value="Indonesia">Indonesia</option>
+                                <option value="Thailand">Thailand</option>
+                                <option value="Vietnam">Vietnam</option>
+                                <option value="Philippines">Philippines</option>
+                            </select>
+
+                            <!-- Additional Country Selection Dropdown -->
+                            <select id="additionalCountrySelect" class="form-select mb-3" style="display:none;">
+                                <option value="" selected>Do not display</option>
+                                <option value="China">China</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Malaysia">Malaysia</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="South Korea">South Korea</option>
+                                <option value="Indonesia">Indonesia</option>
+                                <option value="Thailand">Thailand</option>
+                                <option value="Vietnam">Vietnam</option>
+                                <option value="Philippines">Philippines</option>
+                            </select>
+
+                            <!-- Show/Hide Additional Country Select Button -->
+                            <button id="toggleAdditionalCountrySelect" class="btn btn-primary mb-3">Toggle Additional
+                                Country Select</button>
+
+                            <!-- Radar Chart -->
+                            <div id="radarChart" style="height: 600px;"></div>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    let chart;
+
+                                    const data = {
+                                        "2020": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 90,
+                                                "Australia": 85,
+                                                "Japan": 88,
+                                                "Malaysia": 80,
+                                                "Singapore": 78,
+                                                "South Korea": 85,
+                                                "Indonesia": 72,
+                                                "Thailand": 70,
+                                                "Vietnam": 65,
+                                                "Philippines": 60
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 85,
+                                                "Australia": 90,
+                                                "Japan": 92,
+                                                "Malaysia": 78,
+                                                "Singapore": 90,
+                                                "South Korea": 88,
+                                                "Indonesia": 70,
+                                                "Thailand": 72,
+                                                "Vietnam": 68,
+                                                "Philippines": 65
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 82,
+                                                "Australia": 88,
+                                                "Japan": 85,
+                                                "Malaysia": 75,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
+                                                "Indonesia": 68,
+                                                "Thailand": 70,
+                                                "Vietnam": 65,
+                                                "Philippines": 62
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 95,
+                                                "Australia": 82,
+                                                "Japan": 90,
+                                                "Malaysia": 78,
+                                                "Singapore": 88,
+                                                "South Korea": 85,
+                                                "Indonesia": 72,
+                                                "Thailand": 70,
+                                                "Vietnam": 68,
+                                                "Philippines": 63
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 88,
+                                                "Australia": 90,
+                                                "Japan": 92,
+                                                "Malaysia": 80,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
+                                                "Indonesia": 70,
+                                                "Thailand": 75,
+                                                "Vietnam": 68,
+                                                "Philippines": 65
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 90,
+                                                "Australia": 88,
+                                                "Japan": 92,
+                                                "Malaysia": 78,
+                                                "Singapore": 95,
+                                                "South Korea": 90,
+                                                "Indonesia": 68,
+                                                "Thailand": 70,
+                                                "Vietnam": 65,
+                                                "Philippines": 62
+                                            }
+                                        ],
+                                        "2010": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 80,
+                                                "Australia": 75,
+                                                "Japan": 82,
+                                                "Malaysia": 70,
+                                                "Singapore": 68,
+                                                "South Korea": 75,
+                                                "Indonesia": 62,
+                                                "Thailand": 60,
+                                                "Vietnam": 55,
+                                                "Philippines": 50
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 75,
+                                                "Australia": 85,
+                                                "Japan": 87,
+                                                "Malaysia": 68,
+                                                "Singapore": 85,
+                                                "South Korea": 83,
+                                                "Indonesia": 60,
+                                                "Thailand": 62,
+                                                "Vietnam": 58,
+                                                "Philippines": 55
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 72,
+                                                "Australia": 80,
+                                                "Japan": 80,
+                                                "Malaysia": 65,
+                                                "Singapore": 85,
+                                                "South Korea": 80,
+                                                "Indonesia": 58,
+                                                "Thailand": 60,
+                                                "Vietnam": 55,
+                                                "Philippines": 52
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 85,
+                                                "Australia": 72,
+                                                "Japan": 80,
+                                                "Malaysia": 68,
+                                                "Singapore": 85,
+                                                "South Korea": 80,
+                                                "Indonesia": 60,
+                                                "Thailand": 58,
+                                                "Vietnam": 55,
+                                                "Philippines": 52
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 78,
+                                                "Australia": 85,
+                                                "Japan": 85,
+                                                "Malaysia": 70,
+                                                "Singapore": 85,
+                                                "South Korea": 80,
+                                                "Indonesia": 60,
+                                                "Thailand": 65,
+                                                "Vietnam": 58,
+                                                "Philippines": 55
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 80,
+                                                "Australia": 80,
+                                                "Japan": 85,
+                                                "Malaysia": 65,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
+                                                "Indonesia": 58,
+                                                "Thailand": 60,
+                                                "Vietnam": 55,
+                                                "Philippines": 52
+                                            }
+                                        ],
+                                        "2000": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 70,
+                                                "Australia": 65,
+                                                "Japan": 75,
+                                                "Malaysia": 60,
+                                                "Singapore": 58,
+                                                "South Korea": 65,
+                                                "Indonesia": 55,
+                                                "Thailand": 50,
+                                                "Vietnam": 45,
+                                                "Philippines": 40
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 65,
+                                                "Australia": 75,
+                                                "Japan": 77,
+                                                "Malaysia": 58,
+                                                "Singapore": 75,
+                                                "South Korea": 73,
+                                                "Indonesia": 50,
+                                                "Thailand": 52,
+                                                "Vietnam": 48,
+                                                "Philippines": 45
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 62,
+                                                "Australia": 70,
+                                                "Japan": 70,
+                                                "Malaysia": 55,
+                                                "Singapore": 75,
+                                                "South Korea": 70,
+                                                "Indonesia": 48,
+                                                "Thailand": 50,
+                                                "Vietnam": 45,
+                                                "Philippines": 42
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 75,
+                                                "Australia": 62,
+                                                "Japan": 70,
+                                                "Malaysia": 58,
+                                                "Singapore": 75,
+                                                "South Korea": 70,
+                                                "Indonesia": 50,
+                                                "Thailand": 48,
+                                                "Vietnam": 45,
+                                                "Philippines": 42
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 68,
+                                                "Australia": 75,
+                                                "Japan": 75,
+                                                "Malaysia": 60,
+                                                "Singapore": 75,
+                                                "South Korea": 70,
+                                                "Indonesia": 50,
+                                                "Thailand": 55,
+                                                "Vietnam": 48,
+                                                "Philippines": 45
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 70,
+                                                "Australia": 70,
+                                                "Japan": 75,
+                                                "Malaysia": 55,
+                                                "Singapore": 80,
+                                                "South Korea": 75,
+                                                "Indonesia": 48,
+                                                "Thailand": 50,
+                                                "Vietnam": 45,
+                                                "Philippines": 42
+                                            }
+                                        ],
+                                        "1990": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 60,
+                                                "Australia": 55,
+                                                "Japan": 65,
+                                                "Malaysia": 50,
+                                                "Singapore": 48,
+                                                "South Korea": 55,
+                                                "Indonesia": 45,
+                                                "Thailand": 40,
+                                                "Vietnam": 35,
+                                                "Philippines": 30
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 55,
+                                                "Australia": 65,
+                                                "Japan": 67,
+                                                "Malaysia": 48,
+                                                "Singapore": 65,
+                                                "South Korea": 63,
+                                                "Indonesia": 40,
+                                                "Thailand": 42,
+                                                "Vietnam": 38,
+                                                "Philippines": 35
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 52,
+                                                "Australia": 60,
+                                                "Japan": 60,
+                                                "Malaysia": 45,
+                                                "Singapore": 65,
+                                                "South Korea": 60,
+                                                "Indonesia": 38,
+                                                "Thailand": 40,
+                                                "Vietnam": 35,
+                                                "Philippines": 32
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 65,
+                                                "Australia": 52,
+                                                "Japan": 60,
+                                                "Malaysia": 48,
+                                                "Singapore": 65,
+                                                "South Korea": 60,
+                                                "Indonesia": 40,
+                                                "Thailand": 38,
+                                                "Vietnam": 35,
+                                                "Philippines": 32
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 58,
+                                                "Australia": 65,
+                                                "Japan": 65,
+                                                "Malaysia": 50,
+                                                "Singapore": 65,
+                                                "South Korea": 60,
+                                                "Indonesia": 40,
+                                                "Thailand": 45,
+                                                "Vietnam": 38,
+                                                "Philippines": 35
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 55,
+                                                "Australia": 50,
+                                                "Japan": 60,
+                                                "Malaysia": 40,
+                                                "Singapore": 65,
+                                                "South Korea": 60,
+                                                "Indonesia": 35,
+                                                "Thailand": 40,
+                                                "Vietnam": 35,
+                                                "Philippines": 30
+                                            }
+                                        ]
+                                    };
+
+                                    // Function to render radar chart
+                                    function renderRadarChart(year, country, additionalCountry) {
+                                        const categories = data[year].map(item => item.Indicator);
+
+                                        const countryData = data[year].map(item => item[country]);
+                                        const additionalCountryData = additionalCountry ? data[year].map(item => item[additionalCountry]) : null;
+
+                                        const series = [
+                                            {
+                                                name: `${country} Trade Rating`,
+                                                data: countryData
+                                            }
+                                        ];
+
+                                        if (additionalCountryData) {
+                                            series.push({
+                                                name: `${additionalCountry} Trade Rating`,
+                                                data: additionalCountryData
+                                            });
+                                        }
+
+                                        const options = {
+                                            series: series,
+                                            chart: {
+                                                height: 600,
+                                                type: 'radar'
+                                            },
+                                            xaxis: {
+                                                categories: categories
+                                            }
+                                        };
+
+                                        if (chart) {
+                                            chart.destroy();
+                                        }
+
+                                        chart = new ApexCharts(document.querySelector("#radarChart"), options);
+                                        chart.render();
+                                    }
+
+                                    const yearSelect1 = document.getElementById("yearSelect1");
+                                    const countrySelect = document.getElementById("countrySelect");
+                                    const additionalCountrySelect = document.getElementById("additionalCountrySelect");
+                                    const toggleAdditionalCountrySelect = document.getElementById("toggleAdditionalCountrySelect");
+
+                                    // Set default values
+                                    const defaultYear = "2020";
+                                    const defaultCountry = "Japan";
+                                    yearSelect1.value = defaultYear;
+                                    countrySelect.value = defaultCountry;
+                                    renderRadarChart(defaultYear, defaultCountry, null);
+
+                                    // Event listener for year selection
+                                    yearSelect1.addEventListener("change", () => {
+                                        const selectedYear = yearSelect1.value;
+                                        const selectedCountry = countrySelect.value;
+                                        const additionalCountry = additionalCountrySelect.value !== "Do not display" ? additionalCountrySelect.value : null;
+
+                                        renderRadarChart(selectedYear, selectedCountry, additionalCountry);
+                                    });
+
+                                    // Event listener for country selection
+                                    countrySelect.addEventListener("change", () => {
+                                        const selectedYear = yearSelect1.value;
+                                        const selectedCountry = countrySelect.value;
+                                        const additionalCountry = additionalCountrySelect.value !== "Do not display" ? additionalCountrySelect.value : null;
+
+                                        renderRadarChart(selectedYear, selectedCountry, additionalCountry);
+                                    });
+
+                                    // Event listener for additional country selection
+                                    additionalCountrySelect.addEventListener("change", () => {
+                                        const selectedYear = yearSelect1.value;
+                                        const selectedCountry = countrySelect.value;
+                                        const additionalCountry = additionalCountrySelect.value !== "Do not display" ? additionalCountrySelect.value : null;
+
+                                        renderRadarChart(selectedYear, selectedCountry, additionalCountry);
+                                    });
+
+                                    // Toggle the visibility of the additional country select
+                                    toggleAdditionalCountrySelect.addEventListener("click", () => {
+                                        if (additionalCountrySelect.style.display === "none") {
+                                            additionalCountrySelect.style.display = "block";
+                                        } else {
+                                            additionalCountrySelect.style.display = "none";
+                                        }
+                                    });
+                                });
+                            </script>
+                            <!-- End Radar Chart -->
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">World Map GDP Indicators</h5>
+                            <!-- Map Container -->
+                            <div id="worldMap" style="height: 500px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", () => {
+                        let data;
+                        let map;
+
+                        // Function to render world map with data
+                        function renderWorldMap(year) {
+                            const yearData = data.filter(item => item["Year"] === year);
+
+                            if (!map) {
+                                map = L.map('worldMap').setView([20, 0], 2);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                }).addTo(map);
+                            }
+
+                            // Clear existing layers
+                            if (map.hasLayer(map.currentLayer)) {
+                                map.removeLayer(map.currentLayer);
+                            }
+
+                            // Load GeoJSON data from an online source
+                            fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+                                .then(response => response.json())
+                                .then(worldGeoJSON => {
+                                    map.currentLayer = L.geoJSON(worldGeoJSON, {
+                                        style: function (feature) {
+                                            const countryData = yearData.find(item => item["Country Name"] === feature.properties.name);
+                                            return {
+                                                fillColor: getColor(countryData ? countryData["average_value_GDP (current US$)"] : 0),
+                                                weight: 2,
+                                                opacity: 1,
+                                                color: 'white',
+                                                dashArray: '3',
+                                                fillOpacity: 0.7
+                                            };
+                                        },
+                                        onEachFeature: function (feature, layer) {
+                                            layer.on({
+                                                mouseover: highlightFeature,
+                                                mouseout: resetHighlight
+                                            });
+                                        }
+                                    }).addTo(map);
+                                });
+                        }
+
+                        // Function to get color based on value
+                        function getColor(d) {
+                            return d > 1000000000000 ? '#800026' :
+                                d > 500000000000 ? '#BD0026' :
+                                    d > 200000000000 ? '#E31A1C' :
+                                        d > 100000000000 ? '#FC4E2A' :
+                                            d > 50000000000 ? '#FD8D3C' :
+                                                d > 20000000000 ? '#FEB24C' :
+                                                    d > 10000000000 ? '#FED976' :
+                                                        '#FFEDA0';
+                        }
+
+                        // Highlight feature on hover
+                        function highlightFeature(e) {
+                            const layer = e.target;
+                            layer.setStyle({
+                                weight: 3,
+                                color: '#666',
+                                dashArray: '',
+                                fillOpacity: 0.7
+                            });
+                        }
+
+                        // Reset highlight
+                        function resetHighlight(e) {
+                            map.currentLayer.resetStyle(e.target);
+                        }
+
+                        // Fetch and parse CSV data
+                        Papa.parse("../../data/economy-and-growth/economy-and-growth.csv", {
+                            download: true,
+                            header: true,
+                            complete: function (results) {
+                                data = results.data;
+                                const yearSelect = document.getElementById("yearSelect");
+
+                                // Populate the year dropdown
+                                const years = [...new Set(data.map(item => item["Year"]))];
+                                years.forEach(year => {
+                                    const option = document.createElement("option");
+                                    option.value = year;
+                                    option.text = year;
+                                    yearSelect.appendChild(option);
+                                });
+
+                                // Set default year to 2000 and render its map
+                                const defaultYear = "2008";
+                                yearSelect.value = defaultYear;
+                                renderWorldMap(defaultYear);
+
+                                // Event listener for year selection
+                                yearSelect.addEventListener("change", () => {
+                                    const selectedYear = yearSelect.value;
+                                    renderWorldMap(selectedYear);
+                                });
+                            }
+                        });
+                    });
+                </script>
+
+
+
+
+
+
+
+
+
+
+
+        </section>
+
+    </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+        <div class="copyright">
+            Copyright &copy; 2022.Company name All rights reserved.<a target="_blank"
+                href="https://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a>
+        </div>
+        <div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you purchased the pro version. -->
+
+
+
+        </div>
+    </footer><!-- End Footer -->
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.min.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
