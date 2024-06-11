@@ -31,14 +31,63 @@
     <link href="assets/css/style.css" rel="stylesheet">
 
     <style>
-        .selector-container {
-            margin-bottom: 10px;
+        body {
+          font-family: 'Roboto', sans-serif;
+          background: url('assets/img/cool-background.svg') no-repeat center center fixed;
+          background-size: cover;
         }
-
-        #dynamicImage {
-            width: 80%;
+      
+        .section {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 20px;
+          padding: 20px;
         }
-    </style>
+      
+        .card {
+          background-color: #f9f9f9;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+          transition: transform 0.2s;
+        }
+      
+        .card:hover {
+          transform: translateY(-10px);
+        }
+      
+        .card-body {
+          padding: 40px;
+        }
+      
+        .card-title {
+          font-family: 'Poppins', sans-serif;
+          font-size: 20px;
+          margin-bottom: 15px;
+        }
+      
+        p {
+          font-family: 'Open Sans', sans-serif;
+          color: #2d2525;
+        }
+      
+        .chart-container {
+          position: relative;
+          min-height: 500px;
+          background: #fff;
+          border-radius: 10px;
+          padding: 20px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      
+        .year-selector {
+          margin-bottom: 10px;
+          padding: 5px;
+          border-radius: 5px;
+          border: 1px solid #ccc;
+        }
+      </style>
+      
     <script>
         function updateImage() {
             const category = document.getElementById('categorySelector').value;
@@ -74,12 +123,8 @@
     </header><!-- End Header -->
     <main id="main" class="main">
         <section class="section">
-            <div class="row">
-
-
-                
-
-                <div class="col-lg-6">
+   
+            
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">National economic indicators cluster visualization</h5>
@@ -108,8 +153,9 @@
 
                             <!-- Image -->
                             <div id="imageContainer" style="text-align: center;">
-                                <img id="dynamicImage" src="../../data/Cluster/eco-2000.png" alt="描述图片">
+                                <img id="dynamicImage" src="../../data/Cluster/eco-2000.png" alt="描述图片" width="1100" height="800">
                             </div>
+                            
 
                             <p id="test for line">The similarity and change of economic indicators in Asia-Pacific countries during 1995-2015 were analyzed by clustering method</p>
                             <!-- End Image -->
