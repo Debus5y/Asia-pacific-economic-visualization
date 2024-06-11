@@ -438,143 +438,158 @@
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Share of Japan's imports and exports</h5>
-                            <button id="toggleButton">Show Import Data</button>
-                            <!-- Stacked Column Chart -->
-                            <div id="columnChart"></div>
-
+                            <h5 class="card-title">Share of Countries' Trade</h5>
+                            <div class="selector">
+                                <label for="year-selector">Select Year:</label>
+                                <input type="range" id="year-slider" min="1980" max="2020" step="1" value="2000" oninput="updateYearLabel(this.value)">
+                                <span id="year-label">2000</span>
+                                
+                                <label for="x-axis">Select X-axis:</label>
+                                <select id="x-axis">
+                                    <option value="average_value_Agricultural raw materials exports (% of merchandise exports)">Agricultural Exports %</option>
+                                    <option value="average_value_Commercial service exports (current US$)">Commercial Service Exports</option>
+                                    <option value="average_value_Commercial service imports (current US$)">Commercial Service Imports</option>
+                                    <option value="average_value_Food exports (% of merchandise exports)">Food Exports %</option>
+                                    <option value="average_value_Fuel exports (% of merchandise exports)">Fuel Exports %</option>
+                                    <option value="average_value_High-technology exports (% of manufactured exports)">High-tech Exports %</option>
+                                </select>
+                        
+                                <label for="y-axis">Select Y-axis:</label>
+                                <select id="y-axis">
+                                    <option value="average_value_Agricultural raw materials exports (% of merchandise exports)">Agricultural Exports %</option>
+                                    <option value="average_value_Commercial service exports (current US$)">Commercial Service Exports</option>
+                                    <option value="average_value_Commercial service imports (current US$)">Commercial Service Imports</option>
+                                    <option value="average_value_Food exports (% of merchandise exports)">Food Exports %</option>
+                                    <option value="average_value_Fuel exports (% of merchandise exports)">Fuel Exports %</option>
+                                    <option value="average_value_High-technology exports (% of manufactured exports)">High-tech Exports %</option>
+                                </select>
+                            </div>
+                        
+                            <div id="chart"></div>
+                        
                             <script>
+                                let chart;
+                
                                 document.addEventListener("DOMContentLoaded", () => {
-                                    const importCategories = [
-                                        "average_value_Computer, communications and other services (% of commercial service imports)",
-                                        "average_value_Food imports (% of merchandise imports)",
-                                        "average_value_Fuel imports (% of merchandise imports)",
-                                        "average_value_ICT goods imports (% of total goods imports)",
-                                        "average_value_Insurance and financial services (% of commercial service imports)",
-                                        "average_value_Manufactures imports (% of merchandise imports)"
-                                    ];
-
-                                    const exportCategories = [
-                                        "average_value_Computer, communications and other services (% of commercial service exports)",
-                                        "average_value_Food exports (% of merchandise exports)",
-                                        "average_value_Fuel exports (% of merchandise exports)",
-                                        "average_value_ICT goods exports (% of total goods exports)",
-                                        "average_value_Insurance and financial services (% of commercial service exports)",
-                                        "average_value_Manufactures exports (% of merchandise exports)"
-                                    ];
-
-                                    const simplifiedCategories = [
-                                        "Computer, communications and other services",
-                                        "Food",
-                                        "Fuel",
-                                        "ICT goods",
-                                        "Insurance and financial services",
-                                        "Manufactures"
-                                    ];
-
-                                    const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#FFC300'];
-
-                                    let showingImports = false;
-
-                                    const fetchDataAndRenderChart = (isImport) => {
-                                        Papa.parse("../../data/trade/trade.csv", {
-                                            download: true,
-                                            header: true,
-                                            complete: function (results) {
-                                                const data = results.data;
-
-                                                // 过滤出日本的数据
-                                                const japanData = data.filter(item => item["Country Name"] === "Japan");
-
-                                                // 对年份排序
-                                                const sortedJapanData = japanData.sort((a, b) => parseInt(a["Year"]) - parseInt(b["Year"]));
-
-                                                // 提取年份
-                                                const years = sortedJapanData.map(item => parseInt(item["Year"]));
-
-                                                // 提取总进口或出口额
-                                                const totalTrade = sortedJapanData.map(item => parseFloat(isImport ? item["average_value_Merchandise imports (current US$)"] : item["average_value_Merchandise exports (current US$)"]));
-
-                                                // 提取各类商品的贸易数据
-                                                const categories = isImport ? importCategories : exportCategories;
-
-                                                const seriesData = categories.map((category, index) => ({
-                                                    name: simplifiedCategories[index],
-                                                    data: sortedJapanData.map((item, idx) => {
-                                                        const percentage = parseFloat(item[category]);
-                                                        return (percentage / 100) * totalTrade[idx];
-                                                    })
+                                    Papa.parse("../../data/trade/trade.csv", {
+                                        download: true,
+                                        header: true,
+                                        complete: function (results) {
+                                            const data = results.data;
+                                            const countries = ["China", "Japan", "Malaysia", "Australia", "India", "Philippines", "New Zealand", "Singapore", "Thailand", "Vietnam", "Mongolia", "Indonesia", "Cambodia"];
+                                            
+                                            function filterDataByYear(year) {
+                                                return data.filter(item => countries.includes(item["Country Name"]) && item["Year"] == year);
+                                            }
+                
+                                            function extractChartData(filteredData, xKey, yKey) {
+                                                return filteredData.map(item => ({
+                                                    x: parseFloat(item[xKey]),
+                                                    y: parseFloat(item[yKey]),
+                                                    z: 10, // Bubble size (arbitrary)
+                                                    country: item["Country Name"]
                                                 }));
-
-                                                const columnChart = new ApexCharts(document.querySelector("#columnChart"), {
-                                                    series: seriesData,
+                                            }
+                
+                                            function updateChart(year, xKey, yKey) {
+                                                const filteredData = filterDataByYear(year);
+                                                const seriesData = countries.map(country => ({
+                                                    name: country,
+                                                    data: extractChartData(filteredData.filter(item => item["Country Name"] === country), xKey, yKey)
+                                                }));
+                
+                                                const options = {
                                                     chart: {
-                                                        type: 'bar',
-                                                        height: 350,
-                                                        stacked: true,
-                                                        animations: {
-                                                            enabled: false // 禁用动画
+                                                        type: 'bubble',
+                                                        height: 600,
+                                                        zoom: {
+                                                            enabled: true,
+                                                            type: 'xy'
                                                         }
-                                                    },
-                                                    colors: colors,
-                                                    plotOptions: {
-                                                        bar: {
-                                                            horizontal: false,
-                                                            columnWidth: '55%',
-                                                            endingShape: 'rounded'
-                                                        },
                                                     },
                                                     dataLabels: {
                                                         enabled: false
                                                     },
-                                                    stroke: {
-                                                        show: true,
-                                                        width: 2,
-                                                        colors: ['transparent']
-                                                    },
+                                                    series: seriesData,
                                                     xaxis: {
-                                                        categories: years,
                                                         title: {
-                                                            text: 'Year'
+                                                            text: xKey
                                                         }
                                                     },
                                                     yaxis: {
                                                         title: {
-                                                            text: isImport ? 'Import Value (US$)' : 'Export Value (US$)'
+                                                            text: yKey
                                                         }
                                                     },
-                                                    fill: {
-                                                        opacity: 1
-                                                    },
                                                     tooltip: {
-                                                        y: {
-                                                            formatter: function (val) {
-                                                                return "$ " + val.toFixed(2);
+                                                        custom: function({series, seriesIndex, dataPointIndex, w}) {
+                                                            const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+                                                            return '<div class="arrow_box">' +
+                                                            '<span>' + data.country + '</span><br>' +
+                                                            '<span>' + xKey + ': ' + data.x + '</span><br>' +
+                                                            '<span>' + yKey + ': ' + data.y + '</span>' +
+                                                            '</div>';
+                                                        }
+                                                    },
+                                                    grid: {
+                                                        show: true,
+                                                        xaxis: {
+                                                            lines: {
+                                                                show: true
+                                                            }
+                                                        },
+                                                        yaxis: {
+                                                            lines: {
+                                                                show: true
                                                             }
                                                         }
                                                     }
-                                                });
-
-                                                columnChart.render();
+                                                };
+                
+                                                if (chart) {
+                                                    chart.updateOptions(options);
+                                                } else {
+                                                    chart = new ApexCharts(document.querySelector("#chart"), options);
+                                                    chart.render();
+                                                }
                                             }
-                                        });
-                                    };
-
-                                    document.getElementById("toggleButton").addEventListener("click", () => {
-                                        showingImports = !showingImports;
-                                        document.getElementById("toggleButton").textContent = showingImports ? "Show Export Data" : "Show Import Data";
-                                        fetchDataAndRenderChart(showingImports);
+                
+                                            document.getElementById('x-axis').addEventListener('change', function () {
+                                                const year = document.getElementById('year-slider').value;
+                                                const xKey = this.value;
+                                                const yKey = document.getElementById('y-axis').value;
+                                                updateChart(year, xKey, yKey);
+                                            });
+                
+                                            document.getElementById('y-axis').addEventListener('change', function () {
+                                                const year = document.getElementById('year-slider').value;
+                                                const xKey = document.getElementById('x-axis').value;
+                                                const yKey = this.value;
+                                                updateChart(year, xKey, yKey);
+                                            });
+                
+                                            document.getElementById('year-slider').addEventListener('input', function () {
+                                                const year = this.value;
+                                                const xKey = document.getElementById('x-axis').value;
+                                                const yKey = document.getElementById('y-axis').value;
+                                                updateYearLabel(year);
+                                                updateChart(year, xKey, yKey);
+                                            });
+                
+                                            // Initial chart rendering
+                                            updateChart(2000, document.getElementById('x-axis').value, document.getElementById('y-axis').value);
+                                        }
                                     });
-
-                                    // 初始显示出口数据
-                                    fetchDataAndRenderChart(showingImports);
                                 });
+                
+                                function updateYearLabel(year) {
+                                    document.getElementById('year-label').innerText = year;
+                                }
                             </script>
-
-                            <!-- End Stacked Column Chart -->
                         </div>
                     </div>
                 </div>
+                
 
                 <div class="col-lg-6">
                     <div class="card">
