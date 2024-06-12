@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Trade</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
+
+    <!-- PapaParse CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet">
+
+    <!-- =======================================================
+  * Template Name: NiceAdmin - v2.2.2
+  
+  
+  
+  ======================================================== -->
+</head>
+<!-- Custom CSS -->
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: url('assets/img/cool-background.svg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .section {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+    }
+
+    .card-body {
+        padding: 40px;
+    }
+
+    .card-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    p {
+        font-family: 'Open Sans', sans-serif;
+        color: #2d2525;
+    }
+
+    .chart-container {
+        position: relative;
+        min-height: 500px;
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .year-selector {
+        margin-bottom: 10px;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+</style>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="assets/img/logo.png" alt="">
+                <span class="d-none d-lg-block">Trade</span>
+            </a>
+
+        </div><!-- End Logo -->
+
+    </header><!-- End Header -->
+    <main id="main" class="main">
+        <section class="section">
+            <div class="row">
+
+
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Overview of trade indicators</h5>
+
+                        <!-- Dropdown to switch between data views -->
+                        <div id="dropdown-container">
+                            <select id="dataSelector">
+                                <option value="tradeValues">Trade Values</option>
+                                <option value="tradeIndices">Trade Indices</option>
+                                <option value="tradeSurplus">Trade Surplus</option>
+                            </select>
+                        </div>
+
+                        <!-- Area Chart -->
+                        <div id="areaChart"></div>
+
+                        <!-- Slider for selecting the start time range -->
+                        <div id="slider-container">
+                            <input type="range" id="slider" min="0" max="100" value="0" step="1">
+                        </div>
+
+                        <script>
+                            document.addEventListener("DOMContentLoaded", () => {
+                                Papa.parse("../../data/trade/trade.csv", {
+                                    download: true,
+                                    header: true,
+                                    complete: function (results) {
+                                        const data = results.data;
+
+                                        // 过滤出日本的数据
+                                        const CambodiaData = data.filter(item => item["Country Name"] === "Cambodia");
+
+                                        // 提取年份和数据并进行排序
+                                        const years = [];
+                                        const importValues = [];
+                                        const exportValues = [];
+                                        const tradeSurplus = [];
+                                        const exportIndex = [];
+                                        const importIndex = [];
+                                        const netTradeIndex = [];
+                                        CambodiaData.forEach(item => {
+                                            const year = parseInt(item["Year"]);
+                                            const importValue = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                                            const exportValue = parseFloat(item["average_value_Merchandise exports (current US$)"]);
+                                            const surplus = exportValue - importValue;
+
+                                            years.push(year);
+                                            importValues.push(importValue);
+                                            exportValues.push(exportValue);
+                                            tradeSurplus.push(surplus);
+                                            exportIndex.push(parseFloat(item["average_value_Export value index (2000 = 100)"]));
+                                            importIndex.push(parseFloat(item["average_value_Import value index (2000 = 100)"]));
+                                            netTradeIndex.push(parseFloat(item["average_value_Net barter terms of trade index (2000 = 100)"]));
+                                        });
+
+                                        // 对年份进行排序
+                                        const sortedIndices = years.map((year, index) => index).sort((a, b) => years[a] - years[b]);
+                                        const sortedYears = sortedIndices.map(index => years[index]);
+                                        const sortedImportValues = sortedIndices.map(index => importValues[index]);
+                                        const sortedExportValues = sortedIndices.map(index => exportValues[index]);
+                                        const sortedTradeSurplus = sortedIndices.map(index => tradeSurplus[index]);
+                                        const sortedExportIndex = sortedIndices.map(index => exportIndex[index]);
+                                        const sortedImportIndex = sortedIndices.map(index => importIndex[index]);
+                                        const sortedNetTradeIndex = sortedIndices.map(index => netTradeIndex[index]);
+
+                                        // 创建初始图表配置
+                                        let options = {
+                                            series: [
+                                                {
+                                                    name: 'Import Value',
+                                                    data: sortedImportValues
+                                                },
+                                                {
+                                                    name: 'Export Value',
+                                                    data: sortedExportValues
+                                                }
+                                            ],
+                                            chart: {
+                                                type: 'area',
+                                                height: 450,
+                                                zoom: {
+                                                    type: 'x',
+                                                    enabled: true,
+                                                    autoScaleYaxis: true
+                                                }
+                                            },
+                                            dataLabels: {
+                                                enabled: false
+                                            },
+                                            stroke: {
+                                                curve: 'smooth'
+                                            },
+                                            fill: {
+                                                type: 'gradient',
+                                                gradient: {
+                                                    shadeIntensity: 1,
+                                                    opacityFrom: 0.7,
+                                                    opacityTo: 0.9,
+                                                }
+                                            },
+                                            grid: {
+                                                row: {
+                                                    colors: ['#f3f3f3', 'transparent'],
+                                                    opacity: 0.5
+                                                },
+                                            },
+                                            xaxis: {
+                                                categories: sortedYears,
+                                                title: {
+                                                    text: 'Year'
+                                                }
+                                            },
+                                            yaxis: {
+                                                title: {
+                                                    text: 'Value (US$)'
+                                                }
+                                            },
+                                            tooltip: {
+                                                shared: true,
+                                                intersect: false,
+                                                y: {
+                                                    formatter: function (val) {
+                                                        return "$" + val;
+                                                    }
+                                                }
+                                            }
+                                        };
+
+                                        // 渲染初始图表
+                                        let chart = new ApexCharts(document.querySelector("#areaChart"), options);
+                                        chart.render();
+
+                                        const slider = document.getElementById('slider');
+                                        slider.addEventListener('input', function () {
+                                            const sliderValue = parseInt(this.value);
+                                            const minIndex = Math.floor((sliderValue / 100) * (sortedYears.length - 1));
+
+                                            // 过滤数据到选择的年份范围内
+                                            const filteredYears = sortedYears.slice(minIndex);
+                                            const filteredImportValues = sortedImportValues.slice(minIndex);
+                                            const filteredExportValues = sortedExportValues.slice(minIndex);
+                                            const filteredTradeSurplus = sortedTradeSurplus.slice(minIndex);
+                                            const filteredExportIndex = sortedExportIndex.slice(minIndex);
+                                            const filteredImportIndex = sortedImportIndex.slice(minIndex);
+                                            const filteredNetTradeIndex = sortedNetTradeIndex.slice(minIndex);
+
+                                            // 更新图表数据
+                                            if (chartType === 'tradeValues') {
+                                                chart.updateSeries([
+                                                    {
+                                                        name: 'Import Value',
+                                                        data: filteredImportValues
+                                                    },
+                                                    {
+                                                        name: 'Export Value',
+                                                        data: filteredExportValues
+                                                    }
+                                                ]);
+                                            } else if (chartType === 'tradeIndices') {
+                                                chart.updateSeries([
+                                                    {
+                                                        name: 'Export Value Index',
+                                                        data: filteredExportIndex
+                                                    },
+                                                    {
+                                                        name: 'Import Value Index',
+                                                        data: filteredImportIndex
+                                                    },
+                                                    {
+                                                        name: 'Net Barter Terms of Trade Index',
+                                                        data: filteredNetTradeIndex
+                                                    }
+                                                ]);
+                                            } else if (chartType === 'tradeSurplus') {
+                                                chart.updateSeries([
+                                                    {
+                                                        name: 'Trade Surplus',
+                                                        data: filteredTradeSurplus
+                                                    }
+                                                ]);
+                                            }
+
+                                            // 更新图表X轴和其他选项
+                                            chart.updateOptions({
+                                                xaxis: {
+                                                    categories: filteredYears
+                                                },
+                                                fill: chartType === 'tradeValues' ? {
+                                                    type: 'gradient',
+                                                    gradient: {
+                                                        shadeIntensity: 1,
+                                                        opacityFrom: 0.7,
+                                                        opacityTo: 0.9,
+                                                    }
+                                                } : {
+                                                    type: 'solid'
+                                                },
+                                                annotations: chartType === 'tradeSurplus' ? {
+                                                    yaxis: [
+                                                        {
+                                                            y: 0,
+                                                            borderColor: '#FF0000',
+                                                            label: {
+                                                                borderColor: '#FF0000',
+                                                                style: {
+                                                                    color: '#fff',
+                                                                    background: '#FF0000'
+                                                                },
+                                                                text: 'Base Line (0)'
+                                                            }
+                                                        }
+                                                    ]
+                                                } : chartType === 'tradeIndices' ? {
+                                                    yaxis: [
+                                                        {
+                                                            y: 100,
+                                                            borderColor: '#FF0000',
+                                                            label: {
+                                                                borderColor: '#FF0000',
+                                                                style: {
+                                                                    color: '#fff',
+                                                                    background: '#FF0000'
+                                                                },
+                                                                text: 'Base Index (100)'
+                                                            }
+                                                        }
+                                                    ]
+                                                } : {}
+                                            });
+                                        });
+
+                                        let chartType = 'tradeValues';
+                                        document.getElementById('dataSelector').addEventListener('change', function () {
+                                            chartType = this.value;
+                                            if (chartType === 'tradeValues') {
+                                                chart.updateSeries([
+                                                    {
+                                                        name: 'Import Value',
+                                                        data: sortedImportValues
+                                                    },
+                                                    {
+                                                        name: 'Export Value',
+                                                        data: sortedExportValues
+                                                    }
+                                                ]);
+                                                chart.updateOptions({
+                                                    fill: {
+                                                        type: 'gradient',
+                                                        gradient: {
+                                                            shadeIntensity: 1,
+                                                            opacityFrom: 0.7,
+                                                            opacityTo: 0.9,
+                                                        }
+                                                    },
+                                                    yaxis: {
+                                                        title: {
+                                                            text: 'Value (US$)'
+                                                        }
+                                                    },
+                                                    annotations: {
+                                                        yaxis: []
+                                                    }
+                                                });
+                                            } else if (chartType === 'tradeIndices') {
+                                                chart.updateSeries([
+                                                    {
+                                                        name: 'Export Value Index',
+                                                        data: sortedExportIndex
+                                                    },
+                                                    {
+                                                        name: 'Import Value Index',
+                                                        data: sortedImportIndex
+                                                    },
+                                                    {
+                                                        name: 'Net Barter Terms of Trade Index',
+                                                        data: sortedNetTradeIndex
+                                                    }
+                                                ]);
+                                                chart.updateOptions({
+                                                    fill: {
+                                                        type: 'solid'
+                                                    },
+                                                    yaxis: {
+                                                        title: {
+                                                            text: 'Index (2000 = 100)'
+                                                        }
+                                                    },
+                                                    annotations: {
+                                                        yaxis: [
+                                                            {
+                                                                y: 100,
+                                                                borderColor: '#FF0000',
+                                                                label: {
+                                                                    borderColor: '#FF0000',
+                                                                    style: {
+                                                                        color: '#fff',
+                                                                        background: '#FF0000'
+                                                                    },
+                                                                    text: 'Base Index (100)'
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                });
+                                            } else if (chartType === 'tradeSurplus') {
+                                                chart.updateSeries([
+                                                    {
+                                                        name: 'Trade Surplus',
+                                                        data: sortedTradeSurplus
+                                                    }
+                                                ]);
+                                                chart.updateOptions({
+                                                    fill: {
+                                                        type: 'solid'
+                                                    },
+                                                    yaxis: {
+                                                        title: {
+                                                            text: 'Value (US$)'
+                                                        }
+                                                    },
+                                                    annotations: {
+                                                        yaxis: [
+                                                            {
+                                                                y: 0,
+                                                                borderColor: '#FF0000',
+                                                                label: {
+                                                                    borderColor: '#FF0000',
+                                                                    style: {
+                                                                        color: '#fff',
+                                                                        background: '#FF0000'
+                                                                    },
+                                                                    text: 'Base Line (0)'
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                        </script>
+
+                        <!-- End Area Chart -->
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">National macroeconomic trade indicators</h5>
+
+                    <!-- Line Chart -->
+                    <div id="lineChart"></div>
+
+
+                    <p id="test for line">The trade value chart shows the volume of the country's imports and exports over the
+                        years.</p>
+                    <p id="test for line">The trade index chart reflects the country's trade trends and trade competitiveness
+                        over the years.</p>
+                    <p id="test for line">The trade surplus chart shows the country's trade income over the years.</p>
+                    
+
+
+                </div>
+            </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Share of imports and exports</h5>
+                    <button id="toggleButton">Show Import Data</button>
+                    <!-- Stacked Column Chart -->
+                    <div id="columnChart"></div>
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            const importCategories = [
+                                "average_value_Computer, communications and other services (% of commercial service imports)",
+                                "average_value_Food imports (% of merchandise imports)",
+                                "average_value_Fuel imports (% of merchandise imports)",
+                                "average_value_ICT goods imports (% of total goods imports)",
+                                "average_value_Insurance and financial services (% of commercial service imports)",
+                                "average_value_Manufactures imports (% of merchandise imports)"
+                            ];
+
+                            const exportCategories = [
+                                "average_value_Computer, communications and other services (% of commercial service exports)",
+                                "average_value_Food exports (% of merchandise exports)",
+                                "average_value_Fuel exports (% of merchandise exports)",
+                                "average_value_ICT goods exports (% of total goods exports)",
+                                "average_value_Insurance and financial services (% of commercial service exports)",
+                                "average_value_Manufactures exports (% of merchandise exports)"
+                            ];
+
+                            const simplifiedCategories = [
+                                "Computer, communications and other services",
+                                "Food",
+                                "Fuel",
+                                "ICT goods",
+                                "Insurance and financial services",
+                                "Manufactures"
+                            ];
+
+                            const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#FFC300'];
+
+                            let showingImports = false;
+
+                            const fetchDataAndRenderChart = (isImport) => {
+                                Papa.parse("../../data/trade/trade.csv", {
+                                    download: true,
+                                    header: true,
+                                    complete: function (results) {
+                                        const data = results.data;
+
+                                        // 过滤出日本的数据
+                                        const CambodiaData = data.filter(item => item["Country Name"] === "Cambodia");
+
+                                        // 对年份排序
+                                        const sortedCambodiaData = CambodiaData.sort((a, b) => parseInt(a["Year"]) - parseInt(b["Year"]));
+
+                                        // 提取年份
+                                        const years = sortedCambodiaData.map(item => parseInt(item["Year"]));
+
+                                        // 提取总进口或出口额
+                                        const totalTrade = sortedCambodiaData.map(item => parseFloat(isImport ? item["average_value_Merchandise imports (current US$)"] : item["average_value_Merchandise exports (current US$)"]));
+
+                                        // 提取各类商品的贸易数据
+                                        const categories = isImport ? importCategories : exportCategories;
+
+                                        const seriesData = categories.map((category, index) => ({
+                                            name: simplifiedCategories[index],
+                                            data: sortedCambodiaData.map((item, idx) => {
+                                                const percentage = parseFloat(item[category]);
+                                                return (percentage / 100) * totalTrade[idx];
+                                            })
+                                        }));
+
+                                        const columnChart = new ApexCharts(document.querySelector("#columnChart"), {
+                                            series: seriesData,
+                                            chart: {
+                                                type: 'bar',
+                                                height: 450,
+                                                stacked: true,
+                                                animations: {
+                                                    enabled: false // 禁用动画
+                                                }
+                                            },
+                                            colors: colors,
+                                            plotOptions: {
+                                                bar: {
+                                                    horizontal: false,
+                                                    columnWidth: '55%',
+                                                    endingShape: 'rounded'
+                                                },
+                                            },
+                                            dataLabels: {
+                                                enabled: false
+                                            },
+                                            stroke: {
+                                                show: true,
+                                                width: 2,
+                                                colors: ['transparent']
+                                            },
+                                            xaxis: {
+                                                categories: years,
+                                                title: {
+                                                    text: 'Year'
+                                                }
+                                            },
+                                            yaxis: {
+                                                title: {
+                                                    text: isImport ? 'Import Value (US$)' : 'Export Value (US$)'
+                                                }
+                                            },
+                                            fill: {
+                                                opacity: 1
+                                            },
+                                            tooltip: {
+                                                y: {
+                                                    formatter: function (val) {
+                                                        return "$ " + val.toFixed(2);
+                                                    }
+                                                }
+                                            }
+                                        });
+
+                                        columnChart.render();
+                                    }
+                                });
+                            };
+
+                            document.getElementById("toggleButton").addEventListener("click", () => {
+                                showingImports = !showingImports;
+                                document.getElementById("toggleButton").textContent = showingImports ? "Show Export Data" : "Show Import Data";
+                                fetchDataAndRenderChart(showingImports);
+                            });
+
+                            // 初始显示出口数据
+                            fetchDataAndRenderChart(showingImports);
+                        });
+                    </script>
+
+                    <!-- End Stacked Column Chart -->
+                </div>
+            </div>
+            </div>
+
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">National import and export commodities category and proportion</h5>
+
+                    <!-- Line Chart -->
+                    <div id="lineChart"></div>
+
+
+                    <p id="test for line">The country's import and export characteristics are analyzed from six aspects: food, raw materials, financial services, ICT, high-tech products and manufacturing</p>
+
+                    <!-- End Line Chart -->
+
+                </div>
+            </div>
+            </div>
+
+
+
+
+
+
+
+
+
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Trade Partnership</h5>
+                        <div class="chart-container">
+                            <select class="data-type-selector" id="dataTypeSelector">
+                                <option value="import">Import Data</option>
+                                <option value="export">Export Data</option>
+                            </select>
+                            <select class="year-selector" id="yearSelector">
+                                <!-- 从1990年到2024年的年份选项 -->
+                                <script>
+                                    for (let year = 1990; year <= 2024; year++) {
+                                        document.write('<option value="' + year + '">' + year + '</option>');
+                                    }
+                                </script>
+                            </select>
+                            <div id="relationshipGraph" style="min-height: 400px;" class="echart"></div>
+                        </div>
+
+                        <script>
+                            document.addEventListener("DOMContentLoaded", () => {
+                                const importCategories = [
+                                    "average_value_Merchandise imports from economies in the Arab World (% of total merchandise imports)",
+                                    "average_value_Merchandise imports from high-income economies (% of total merchandise imports)",
+                                    "average_value_Merchandise imports from low- and middle-income economies in East Asia & Pacific (% of total merchandise imports)",
+                                    "average_value_Merchandise imports from low- and middle-income economies in Europe & Central Asia (% of total merchandise imports)",
+                                    "average_value_Merchandise imports from low- and middle-income economies in Latin America & the Caribbean (% of total merchandise imports)",
+                                    "average_value_Merchandise imports from low- and middle-income economies in Middle East & North Africa (% of total merchandise imports)",
+                                    "average_value_Merchandise imports from low- and middle-income economies in South Asia (% of total merchandise imports)",
+                                    "average_value_Merchandise imports from low- and middle-income economies in Sub-Saharan Africa (% of total merchandise imports)"
+                                ];
+
+                                const exportCategories = [
+                                    "average_value_Merchandise exports to economies in the Arab World (% of total merchandise exports)",
+                                    "average_value_Merchandise exports to high-income economies (% of total merchandise exports)",
+                                    "average_value_Merchandise exports to low- and middle-income economies in East Asia & Pacific (% of total merchandise exports)",
+                                    "average_value_Merchandise exports to low- and middle-income economies in Europe & Central Asia (% of total merchandise exports)",
+                                    "average_value_Merchandise exports to low- and middle-income economies in Latin America & the Caribbean (% of total merchandise exports)",
+                                    "average_value_Merchandise exports to low- and middle-income economies in Middle East & North Africa (% of total merchandise exports)",
+                                    "average_value_Merchandise exports to low- and middle-income economies in South Asia (% of total merchandise exports)",
+                                    "average_value_Merchandise exports to low- and middle-income economies in Sub-Saharan Africa (% of total merchandise exports)"
+                                ];
+
+                                const simplifiedCategories = [
+                                    "Arab World",
+                                    "High-income economies",
+                                    "East Asia & Pacific",
+                                    "Europe & Central Asia",
+                                    "Latin America & Caribbean",
+                                    "Middle East & North Africa",
+                                    "South Asia",
+                                    "Sub-Saharan Africa"
+                                ];
+
+                                const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#FFC300', '#33FFF5', '#F533FF'];
+
+                                const fetchDataAndRenderChart = (dataType, year) => {
+                                    Papa.parse("../../data/trade/trade.csv", {
+                                        download: true,
+                                        header: true,
+                                        complete: function (results) {
+                                            const data = results.data;
+
+                                            // 过滤出日本的数据
+                                            const CambodiaData = data.filter(item => item["Country Name"] === "Cambodia" && item["Year"] === year);
+
+                                            if (CambodiaData.length === 0) {
+                                                alert("No data available for the selected year.");
+                                                return;
+                                            }
+
+                                            // 提取对应的数据
+                                            const categories = dataType === 'import' ? importCategories : exportCategories;
+                                            const values = categories.map(category => parseFloat(CambodiaData[0][category]));
+
+                                            // 创建关系图数据
+                                            const nodes = [{ name: "Cambodia", symbolSize: 50, itemStyle: { color: '#FFD700' } }];
+                                            const edges = [];
+
+                                            simplifiedCategories.forEach((category, index) => {
+                                                const value = values[index];
+                                                const size = Math.sqrt(value) * 10;
+                                                nodes.push({ name: category, symbolSize: size, value: value, itemStyle: { color: colors[index] } });
+                                                edges.push({ source: "Cambodia", target: category, lineStyle: { width: value } });
+                                            });
+
+                                            // 绘制关系图
+                                            echarts.init(document.querySelector("#relationshipGraph")).setOption({
+                                                title: {
+                                                    text: `${dataType === 'import' ? 'Import' : 'Export'} Volume from Different Regions in ${year}`,
+                                                    subtext: `Based on percentage of total merchandise ${dataType === 'import' ? 'imports' : 'exports'}`,
+                                                    left: 'center'
+                                                },
+                                                tooltip: {
+                                                    formatter: function (params) {
+                                                        if (params.dataType === 'node') {
+                                                            return `${params.name}: ${params.value ? params.value.toFixed(2) + '%' : ''}`;
+                                                        } else {
+                                                            return `${params.source} -> ${params.target}: ${params.value.toFixed(2)}%`;
+                                                        }
+                                                    }
+                                                },
+                                                series: [{
+                                                    type: 'graph',
+                                                    layout: 'force',
+                                                    force: {
+                                                        repulsion: 200,
+                                                        edgeLength: [50, 200]
+                                                    },
+                                                    roam: true,
+                                                    label: {
+                                                        show: true
+                                                    },
+                                                    data: nodes,
+                                                    links: edges,
+                                                    lineStyle: {
+                                                        color: 'source',
+                                                        curveness: 0.3
+                                                    }
+                                                }]
+                                            });
+                                        }
+                                    });
+                                };
+
+                                document.getElementById("dataTypeSelector").addEventListener("change", () => {
+                                    const selectedYear = document.getElementById("yearSelector").value;
+                                    const selectedDataType = document.getElementById("dataTypeSelector").value;
+                                    fetchDataAndRenderChart(selectedDataType, selectedYear);
+                                });
+
+                                document.getElementById("yearSelector").addEventListener("change", (event) => {
+                                    const selectedYear = event.target.value;
+                                    const selectedDataType = document.getElementById("dataTypeSelector").value;
+                                    fetchDataAndRenderChart(selectedDataType, selectedYear);
+                                });
+
+                                // 初始获取和渲染默认年份的数据
+                                fetchDataAndRenderChart("import", "2010");
+                            });
+                        </script>
+                        <!-- End Relationship Graph -->
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Different regional trade relations</h5>
+
+                    <!-- Line Chart -->
+                    <div id="lineChart"></div>
+
+
+                    <p id="test for line">The trade relationship chart shows the proportion and changes of import and export trade relations between countries and different regions</p>
+
+                    <!-- End Line Chart -->
+
+                </div>
+            </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Trade indicators score</h5>
+
+                        <!-- Year Selection Dropdown -->
+                        <select id="yearSelect" class="form-select mb-3">
+                            <option value="" disabled selected>Select Year</option>
+                        </select>
+
+                        <!-- Additional Year Selection Dropdown -->
+                        <select id="additionalYearSelect" class="form-select mb-3" style="display:none;">
+                            <option value="" selected>Do not display</option>
+                        </select>
+
+                        <!-- Show/Hide Additional Year Select Button -->
+                        <button id="toggleAdditionalYearSelect" class="btn btn-primary mb-3">Toggle Additional Year
+                            Select</button>
+
+                        <!-- Radar Chart -->
+                        <div id="radarChart"></div>
+
+                        <script>
+                            document.addEventListener("DOMContentLoaded", () => {
+                                let data;
+                                let chart;
+
+                                // Function to render radar chart
+                                function renderRadarChart(yearData, year, additionalYearData, additionalYear) {
+                                    const categories = [
+                                        "Trade Surplus",
+                                        "Market Competitiveness",
+                                        "Regional Connectivity",
+                                        "Single Product Value",
+                                        "Single Product Cost"
+                                    ];
+
+                                    const series = [
+                                        {
+                                            name: `${year} Trade Rating`,
+                                            data: [
+                                                parseFloat(yearData["Trade Surplus"]),
+                                                parseFloat(yearData["Market Competitiveness"]),
+                                                parseFloat(yearData["Regional Connectivity"]),
+                                                parseFloat(yearData["Single Product Value"]),
+                                                parseFloat(yearData["Single Product Cost"])
+                                            ]
+                                        }
+                                    ];
+
+                                    if (additionalYearData) {
+                                        series.push({
+                                            name: `${additionalYear} Trade Rating`,
+                                            data: [
+                                                parseFloat(additionalYearData["Trade Surplus"]),
+                                                parseFloat(additionalYearData["Market Competitiveness"]),
+                                                parseFloat(additionalYearData["Regional Connectivity"]),
+                                                parseFloat(additionalYearData["Single Product Value"]),
+                                                parseFloat(additionalYearData["Single Product Cost"])
+                                            ]
+                                        });
+                                    }
+
+                                    const options = {
+                                        series: series,
+                                        chart: {
+                                            height: 450,
+                                            type: 'radar'
+                                        },
+                                        xaxis: {
+                                            categories: categories
+                                        }
+                                    };
+
+                                    if (chart) {
+                                        chart.destroy();
+                                    }
+
+                                    chart = new ApexCharts(document.querySelector("#radarChart"), options);
+                                    chart.render();
+                                }
+
+                                // Fetch and parse CSV data
+                                Papa.parse("../../data/trade/JP.csv", {
+                                    download: true,
+                                    header: true,
+                                    complete: function (results) {
+                                        data = results.data;
+                                        const yearSelect = document.getElementById("yearSelect");
+                                        const additionalYearSelect = document.getElementById("additionalYearSelect");
+                                        const toggleAdditionalYearSelect = document.getElementById("toggleAdditionalYearSelect");
+
+                                        // Populate the year dropdown
+                                        const years = [...new Set(data.map(item => item["Year"]))];
+                                        years.forEach(year => {
+                                            const option = document.createElement("option");
+                                            option.value = year;
+                                            option.text = year;
+                                            yearSelect.appendChild(option);
+
+                                            const additionalOption = document.createElement("option");
+                                            additionalOption.value = year;
+                                            additionalOption.text = year;
+                                            additionalYearSelect.appendChild(additionalOption);
+                                        });
+
+                                        // Set default year to 2000 and render its radar chart
+                                        const defaultYear = "2000";
+                                        yearSelect.value = defaultYear;
+                                        const defaultYearData = data.find(item => item["Year"] === defaultYear);
+                                        if (defaultYearData) {
+                                            renderRadarChart(defaultYearData, defaultYear, null, null);
+                                        } else {
+                                            console.error(`No data found for the year ${defaultYear}.`);
+                                        }
+
+                                        // Event listener for year selection
+                                        yearSelect.addEventListener("change", () => {
+                                            const selectedYear = yearSelect.value;
+                                            const yearData = data.find(item => item["Year"] === selectedYear);
+                                            const additionalYear = additionalYearSelect.value;
+                                            const additionalYearData = data.find(item => item["Year"] === additionalYear);
+
+                                            if (yearData) {
+                                                renderRadarChart(yearData, selectedYear, additionalYearData, additionalYear);
+                                            } else {
+                                                console.error(`No data found for the year ${selectedYear}.`);
+                                            }
+                                        });
+
+                                        // Event listener for additional year selection
+                                        additionalYearSelect.addEventListener("change", () => {
+                                            const selectedYear = yearSelect.value;
+                                            const yearData = data.find(item => item["Year"] === selectedYear);
+                                            const additionalYear = additionalYearSelect.value;
+                                            const additionalYearData = data.find(item => item["Year"] === additionalYear);
+
+                                            if (yearData) {
+                                                renderRadarChart(yearData, selectedYear, additionalYearData, additionalYear);
+                                            } else {
+                                                console.error(`No data found for the year ${selectedYear}.`);
+                                            }
+                                        });
+
+                                        // Toggle the visibility of the additional year select
+                                        toggleAdditionalYearSelect.addEventListener("click", () => {
+                                            if (additionalYearSelect.style.display === "none") {
+                                                additionalYearSelect.style.display = "block";
+                                            } else {
+                                                additionalYearSelect.style.display = "none";
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                        </script>
+                        <!-- End Radar Chart -->
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Trade index score</h5>
+
+                    <!-- Line Chart -->
+                    <div id="lineChart"></div>
+
+
+                    <p id="test for line">A comprehensive display of the country's trade level over the years through the scoring method supports the comparison of different years</p>
+
+                    <!-- End Line Chart -->
+
+                </div>
+            </div>
+            </div>
+
+
+
+
+
+
+
+
+        </section>
+
+    </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+        <div class="copyright">
+        </div>
+        <div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you purchased the pro version. -->
+
+
+
+        </div>
+    </footer><!-- End Footer -->
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.min.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
