@@ -15,6 +15,7 @@
             /* background: url('assets/img/cool-background.svg') no-repeat center center fixed; */
             background-size: cover;
         }
+
         .main-nav {
             display: flex;
             justify-content: flex-end;
@@ -22,9 +23,10 @@
             padding: 10px;
         }
 
-        .main-nav > div {
+        .main-nav>div {
             margin: 0 10px;
         }
+
         .sidebar {
             position: fixed;
             right: 0;
@@ -95,7 +97,7 @@
             </a>
         </div>
         <div id="team-member">
-            <a target="_blank" href="./team.html">
+            <a target="_blank" href="team.html">
                 <i class="fas fa-portrait"></i>
             </a>
         </div>
@@ -127,6 +129,15 @@
         <button onclick="window.location.href='./countries/China/index.html'">China</button>
         <button onclick="window.location.href='./countries/Singapore/index.html'">Singapore</button>
         <button onclick="window.location.href='./countries/Japan/index.html'">Japan</button>
+        <button onclick="window.location.href='./countries/Australia/index.html'">Australia</button>
+        <button onclick="window.location.href='./countries/Cambodia/index.html'">Cambodia</button>
+        <button onclick="window.location.href='./countries/Indonesia/index.html'">Indonesia</button>
+        <button onclick="window.location.href='./countries/Korea, Rep/index.html'">Korea, Rep</button>
+        <button onclick="window.location.href='./countries/Malaysia/index.html'">Malaysia</button>
+        <button onclick="window.location.href='./countries/Philippines/index.html'">Philippines</button>
+        <button onclick="window.location.href='./countries/Singapore/index.html'">Singapore</button>
+        <button onclick="window.location.href='./countries/Thailand/index.html'">Thailand</button>
+        <button onclick="window.location.href='./countries/Vietnam/index.html'">Vietnam</button>
     </div>
     <!--在vscode中安装liver server扩展进行html展现-->
     <!-- Import D3 and TopoJSON libraries -->
@@ -332,15 +343,40 @@
                 let name = enter(c)
                 let countryCode = getCountryCode(name)
 
-                if (countryCode === 'JP') {
-                    window.location.href = `./countries/Japan/index.html`;
+                if (countryCode === 'AU') {
+                    window.location.href = `./countries/Australia/index.html`;
                 }
                 if (countryCode === 'KH') {
                     window.location.href = `./countries/Cambodia/index.html`;
                 }
+                if (countryCode === 'CN') {
+                    window.location.href = `./countries/China/index.html`;
+                }
+                if (countryCode === 'ID') {
+                    window.location.href = `./countries/Indonesia/index.html`;
+                }
+                if (countryCode === 'JP') {
+                    window.location.href = `./countries/Japan/index.html`;
+                }
+                if (countryCode === 'KR') {
+                    window.location.href = `./countries/Korea, Rep/index.html`;
+                }
+                if (countryCode === 'MY') {
+                    window.location.href = `./countries/Malaysia/index.html`;
+                }
+                if (countryCode === 'PH') {
+                    window.location.href = `./countries/Philippines/index.html`;
+                }
+                if (countryCode === 'SG') {
+                    window.location.href = `./countries/Singapore/index.html`;
+                }
+                if (countryCode === 'TH') {
+                    window.location.href = `./countries/Thailand/index.html`;
+                }
                 if (countryCode === 'VN') {
                     window.location.href = `./countries/Vietnam/index.html`;
                 }
+
                 else {
                     alert('This functionality is currently only available for the AP.');
                 }
