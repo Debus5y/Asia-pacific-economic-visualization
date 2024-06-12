@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Economy-and-growth</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+    rel="stylesheet">
+
+  <!-- PapaParse CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+  <!-- ApexCharts CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: NiceAdmin - v2.2.2
+  
+  
+  
+  ======================================================== -->
+</head>
+
+<!-- Custom CSS -->
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: url('assets/img/cool-background.svg') no-repeat center center fixed;
+    background-size: cover;
+  }
+
+  .section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .card {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-10px);
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .card-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  p {
+    font-family: 'Open Sans', sans-serif;
+    color: #666;
+  }
+
+  .chart-container {
+    position: relative;
+    min-height: 450px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .year-selector {
+    margin-bottom: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+</style>
+
+<body>
+
+  <!-- ======= Header ======= -->
+  <header id="header" class="header fixed-top d-flex align-items-center">
+
+    <div class="d-flex align-items-center justify-content-between">
+      <a href="index.html" class="logo d-flex align-items-center">
+        <img src="assets/img/logo.png" alt="">
+        <span class="d-none d-lg-block">Economy-and-growth</span>
+      </a>
+
+    </div><!-- End Logo -->
+
+  </header><!-- End Header -->
+  <main id="main" class="main">
+    <section class="section">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">GDP and GDP per capita</h5>
+
+          <!-- Line Chart -->
+          <div id="lineChart" class="chart-container"></div>
+          <p>This line chart shows the country's annual GDP and GDP per capita trends.</p>
+
+          <!-- Button -->
+          <button id="toggleChart" class="btn btn-primary">Switch display</button>
+
+          <script>
+            document.addEventListener("DOMContentLoaded", () => {
+              let showingGDP = true;
+
+              const options = {
+                series: [],
+                chart: {
+                  height: 350,
+                  type: 'line',
+                  zoom: {
+                    enabled: true,
+                    type: 'x',
+                    autoScaleYaxis: true
+                  },
+                  toolbar: {
+                    tools: {
+                      selection: true,
+                      zoom: true,
+                      zoomin: true,
+                      zoomout: true,
+                      pan: true,
+                      reset: true
+                    },
+                  },
+                  events: {
+                    beforeZoom: function (chartContext, { xaxis }) {
+                      return {
+                        xaxis: {
+                          min: xaxis.min,
+                          max: xaxis.max
+                        }
+                      };
+                    }
+                  }
+                },
+                dataLabels: {
+                  enabled: false
+                },
+                stroke: {
+                  curve: 'smooth'
+                },
+                grid: {
+                  row: {
+                    colors: ['#f3f3f3', 'transparent'],
+                    opacity: 0.5
+                  },
+                },
+                xaxis: {
+                  categories: [],
+                  title: {
+                    text: 'Year'
+                  }
+                },
+                yaxis: {
+                  title: {
+                    text: 'Value (US$)'
+                  }
+                },
+                tooltip: {
+                  x: {
+                    format: 'yyyy'
+                  }
+                }
+              };
+
+              const chart = new ApexCharts(document.querySelector("#lineChart"), options);
+              chart.render();
+
+              Papa.parse("../../data/economy-and-growth/economy-and-growth.csv", {
+                download: true,
+                header: true,
+                complete: function (results) {
+                  const data = results.data;
+
+                  const japanData = data.filter(item => item["Country Name"] === "Philippines");
+
+                  const processData = (key) => {
+                    const result = japanData.map(item => ({
+                      year: parseInt(item["Year"]),
+                      value: parseFloat(item[key])
+                    })).sort((a, b) => a.year - b.year);
+
+                    const years = result.map(item => item.year);
+                    let values = result.map(item => item.value);
+
+                    for (let i = 0; i < values.length; i++) {
+                      if (isNaN(values[i])) {
+                        let prevValid = null, nextValid = null;
+                        for (let j = i - 1; j >= 0; j--) {
+                          if (!isNaN(values[j])) {
+                            prevValid = { index: j, value: values[j] };
+                            break;
+                          }
+                        }
+                        for (let j = i + 1; j < values.length; j++) {
+                          if (!isNaN(values[j])) {
+                            nextValid = { index: j, value: values[j] };
+                            break;
+                          }
+                        }
+                        if (prevValid !== null && nextValid !== null) {
+                          const interpolatedValue = prevValid.value + ((nextValid.value - prevValid.value) * (i - prevValid.index)) / (nextValid.index - prevValid.index);
+                          values[i] = interpolatedValue;
+                        } else if (prevValid !== null) {
+                          values[i] = prevValid.value;
+                        } else if (nextValid !== null) {
+                          values[i] = nextValid.value;
+                        }
+                      }
+                    }
+
+                    return { years, values };
+                  };
+
+                  const gdpData = processData("average_value_GDP (current US$)");
+                  const gdpPerCapitaData = processData("average_value_GDP per capita (current US$)");
+
+                  const updateChart = (data) => {
+                    chart.updateOptions({
+                      series: [{
+                        name: showingGDP ? "GDP" : "GDP per capita",
+                        data: data.values
+                      }],
+                      xaxis: {
+                        categories: data.years
+                      }
+                    });
+                  };
+
+                  document.getElementById("toggleChart").addEventListener("click", () => {
+                    showingGDP = !showingGDP;
+                    updateChart(showingGDP ? gdpData : gdpPerCapitaData);
+                  });
+
+                  // 初始显示GDP折线图
+                  updateChart(gdpData);
+                }
+              });
+            });
+          </script>
+
+          <!-- End Line Chart -->
+        </div>
+      </div>
+
+
+
+      <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">average value GDP growth rate</h5>
+    
+            <!-- Bar Chart -->
+            <div id="barChart" class="chart-container"></div>
+            <p>This bar chart shows the change in the country's average GDP growth rate every five years.</p>
+            <div id="enlargedBarChartContainer" style="display:none;">
+                <div id="enlargedBarChart"></div>
+                <div id="barChartInfo"></div>
+            </div>
+    
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    Papa.parse("../../data/economy-and-growth/economy-and-growth.csv", {
+                        download: true,
+                        header: true,
+                        complete: function (results) {
+                            const data = results.data;
+    
+                            // 过滤出日本的数据
+                            const japanData = data.filter(item => item["Country Name"] === "Philippines");
+    
+                            // 初始化每隔5年的数据容器
+                            const interval = 5;
+                            const growthDataByInterval = {};
+    
+                            // 对数据按年份进行处理，计算每隔5年的平均值
+                            japanData.forEach(item => {
+                                const year = parseInt(item["Year"]);
+                                const value = parseFloat(item["average_value_GDP growth (annual %)"]);
+                                const period = Math.floor(year / interval) * interval;
+    
+                                if (!growthDataByInterval[period]) {
+                                    growthDataByInterval[period] = { sum: 0, count: 0 };
+                                }
+                                growthDataByInterval[period].sum += value;
+                                growthDataByInterval[period].count += 1;
+                            });
+    
+                            const categories = [];
+                            const values = [];
+    
+                            for (const [period, { sum, count }] of Object.entries(growthDataByInterval)) {
+                                categories.push(period);
+                                values.push(sum / count);
+                            }
+    
+                            const barChart = new ApexCharts(document.querySelector("#barChart"), {
+                                series: [{
+                                    data: values
+                                }],
+                                chart: {
+                                    type: 'bar',
+                                    height: 350,
+                                    animations: {
+                                        enabled: true, // 保留主图动画
+                                        easing: 'easeinout', // 设置动画缓动效果
+                                        speed: 800 // 设置动画速度
+                                    },
+                                    events: {
+                                        dataPointSelection: function (event, chartContext, config) {
+                                            // 获取选中的数据点索引
+                                            const selectedIndex = config.dataPointIndex;
+                                            // 获取选中的年份和平均GDP增长率
+                                            const selectedPeriod = categories[selectedIndex];
+                                            const selectedValue = values[selectedIndex];
+    
+                                            // 显示并更新放大图
+                                            updateEnlargedBarChart(selectedPeriod, selectedValue);
+                                        }
+                                    }
+                                },
+                                plotOptions: {
+                                    bar: {
+                                        borderRadius: 4,
+                                        horizontal: true
+                                    }
+                                },
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                xaxis: {
+                                    categories: categories,
+                                    title: {
+                                        text: 'Periods (5 years)'
+                                    }
+                                },
+                                yaxis: {
+                                    title: {
+                                        text: 'average value GDP growth rate (%)'
+                                    }
+                                }
+                            });
+    
+                            barChart.render();
+    
+                            // 更新放大图的函数
+                            function updateEnlargedBarChart(period, value) {
+                                // 设置过渡动画类
+                                const enlargedBarChartElement = document.querySelector("#enlargedBarChart");
+                                enlargedBarChartElement.classList.add('fade-in');
+    
+                                // 销毁旧的图表实例以避免重叠
+                                if (window.enlargedBarChartInstance) {
+                                    window.enlargedBarChartInstance.destroy();
+                                }
+    
+                                // 更新放大图
+                                const enlargedBarChartOptions = {
+                                    series: [{
+                                        name: "GDP Growth Rate",
+                                        data: [value]
+                                    }],
+                                    chart: {
+                                        type: 'bar',
+                                        height: 200,
+                                        animations: {
+                                            enabled: true, // 启用放大图动画
+                                            easing: 'easeinout', // 设置动画缓动效果
+                                            speed: 500 // 设置动画速度
+                                        }
+                                    },
+                                    plotOptions: {
+                                        bar: {
+                                            horizontal: true,
+                                            columnWidth: '100%',
+                                            borderRadius: 4
+                                        }
+                                    },
+                                    dataLabels: {
+                                        enabled: true,
+                                        formatter: function (val) {
+                                            return val.toFixed(2) + " %";
+                                        }
+                                    },
+                                    xaxis: {
+                                        categories: [period],
+                                        title: {
+                                            text: 'Period (5 years)'
+                                        }
+                                    },
+                                    yaxis: {
+                                        title: {
+                                            text: 'average value GDP growth rate (%)'
+                                        },
+                                        max: Math.max(...values) * 1.1 // 设置 y 轴最大值以保持缩放一致
+                                    },
+                                    fill: {
+                                        opacity: 1
+                                    }
+                                };
+    
+                                // 创建并渲染新的放大图实例
+                                window.enlargedBarChartInstance = new ApexCharts(enlargedBarChartElement, enlargedBarChartOptions);
+                                window.enlargedBarChartInstance.render();
+    
+                                // 显示并更新信息标注
+                                document.getElementById("barChartInfo").innerHTML = `
+                                    <h5>Period: ${period}</h5>
+                                    <p>average value GDP growth rate: ${value.toFixed(2)} %</p>
+                                `;
+    
+                                // 显示放大图容器
+                                document.getElementById("enlargedBarChartContainer").style.display = 'flex';
+    
+                                // 移除动画类以便下次点击时可以重新应用
+                                setTimeout(() => {
+                                    enlargedBarChartElement.classList.remove('fade-in');
+                                }, 500); // 动画结束后移除
+                            }
+                        }
+                    });
+                });
+            </script>
+    
+            <style>
+                #enlargedBarChartContainer {
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+                    margin-top: 20px;
+                }
+    
+                #enlargedBarChart {
+                    flex: 1;
+                    transition: all 0.5s ease-in-out;
+                    /* 设置动画过渡效果 */
+                }
+    
+                #enlargedBarChart.fade-in {
+                    transform: scale(1.1);
+                    /* 放大效果 */
+                }
+    
+                #barChartInfo {
+                    flex: 1;
+                }
+            </style>
+    
+            <!-- End Bar Chart -->
+        </div>
+    </div>
+    
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">The contribution of each industry to the national GDP <span id="selectedYear">| 2020</span></h5>
+
+          <!-- Pie Chart -->
+          <div class="chart-container">
+            <select class="year-selector" id="yearSelector">
+              <!-- 从1990年到2024年的年份选项 -->
+              <script>
+                for (let year = 1990; year <= 2024; year++) {
+                  document.write('<option value="' + year + '">' + year + '</option>');
+                }
+
+              </script>
+            </select>
+            <div id="pieChart" style="min-height: 350px;" class="echart"></div>
+          </div>
+
+          <!-- 在此处添加描述性文字 -->
+          <p>This pie chart shows the change in the contribution of major industries to the national GDP each year</p>
+
+          <script>
+            document.addEventListener("DOMContentLoaded", () => {
+              const fetchAndRenderData = (year) => {
+                Papa.parse("../../data/trade/trade.csv", {
+                  download: true,
+                  header: true,
+                  complete: function (results) {
+                    const data = results.data;
+
+                    // 过滤出日本的数据
+                    const japanData = data.filter(item => item["Country Name"] === "Philippines" && item["Year"] === year);
+
+                    if (japanData.length === 0) {
+                      alert("No data available for the selected year.");
+                      return;
+                    }
+
+                    // 简化后的类别名称
+                    const simplifiedCategories = [
+                      "Agricultural raw materials",
+                      "Food",
+                      "Fuel",
+                      "Ores and metals",
+                      "High-technology"
+                    ];
+
+                    // 对应的原始列名称
+                    const importCategories = [
+                      "average_value_Agricultural raw materials exports (% of merchandise exports)",
+                      "average_value_Food exports (% of merchandise exports)",
+                      "average_value_Fuel exports (% of merchandise exports)",
+                      "average_value_Ores and metals exports (% of merchandise exports)",
+                      "average_value_High-technology exports (% of manufactured exports)"
+                    ];
+
+                    const values = importCategories.map(category => parseFloat(japanData[0][category]));
+
+                    // 绘制饼图
+                    echarts.init(document.querySelector("#pieChart")).setOption({
+                      title: {
+                        text: `Industries account for a share of GDP in ${year}`,
+                        subtext: 'Based on merchandise exports',
+                        left: 'center',
+                        top: '5%'
+                      },
+                      chart: {
+                        height: '350'
+                      },
+                      tooltip: {
+                        trigger: 'item'
+                      },
+                      legend: {
+                        orient: 'vertical',
+                        left: 'left'
+                      },
+                      series: [
+                        {
+                          name: 'Import Category',
+                          type: 'pie',
+                          radius: '50%',
+                          data: simplifiedCategories.map((category, index) => ({
+                            value: values[index],
+                            name: category
+                          })),
+                          emphasis: {
+                            itemStyle: {
+                              shadowBlur: 100,
+                              shadowOffsetX: 0,
+                              shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                          }
+                        }
+                      ],
+                    });
+                  }
+                });
+              };
+
+              // 初始获取和渲染默认年份的数据
+              fetchAndRenderData("2010");
+
+              // 年份选择器的事件监听器
+              document.getElementById("yearSelector").addEventListener("change", (event) => {
+                const selectedYear = event.target.value;
+                fetchAndRenderData(selectedYear);
+                document.getElementById("selectedYear").innerText = `| ${selectedYear}`;
+              });
+            });
+          </script>
+          <!-- End Pie Chart -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">average value Gross savings</h5>
+
+          <!-- Polar Area Chart -->
+          <div id="polarAreaChart" class="chart-container"></div>
+          <p>This pole map shows the change in the average savings value every ten years.</p>
+
+          <script>
+            document.addEventListener("DOMContentLoaded", () => {
+              Papa.parse("../../data/trade/trade.csv", {
+                download: true,
+                header: true,
+                complete: function (results) {
+                  const data = results.data;
+
+                  // 过滤出日本的数据
+                  const japanData = data.filter(item => item["Country Name"] === "Philippines");
+
+                  // 初始化每隔10年的数据容器
+                  const interval = 10;
+                  const tradeDataByDecade = {};
+
+                  // 对数据按年份进行处理，计算每隔10年的平均值
+                  japanData.forEach(item => {
+                    const year = parseInt(item["Year"]);
+                    const value = parseFloat(item["average_value_Merchandise imports (current US$)"]);
+                    const decade = Math.floor(year / interval) * interval;
+
+                    if (!tradeDataByDecade[decade]) {
+                      tradeDataByDecade[decade] = { sum: 0, count: 0 };
+                    }
+                    tradeDataByDecade[decade].sum += value;
+                    tradeDataByDecade[decade].count += 1;
+                  });
+
+                  const categories = [];
+                  const values = [];
+
+                  for (const [decade, { sum, count }] of Object.entries(tradeDataByDecade)) {
+                    categories.push(`${decade}s`); // 使用字符串格式化显示每个10年区间
+                    values.push(sum / count);
+                  }
+
+                  new ApexCharts(document.querySelector("#polarAreaChart"), {
+                    series: values,
+                    chart: {
+                      type: 'polarArea',
+                      height: 350,
+                      toolbar: {
+                        show: true
+                      }
+                    },
+                    stroke: {
+                      colors: ['#fff']
+                    },
+                    fill: {
+                      opacity: 0.8
+                    },
+                    grid: {
+                      top: 20,  // 调整顶部留白
+                      bottom: 20,  // 调整底部留白
+                      left: 20,  // 调整左侧留白
+                      right: 20  // 调整右侧留白
+                    },
+
+                    labels: categories
+                  }).render();
+                }
+              });
+            });
+          </script>
+          <!-- End Polar Area Chart -->
+
+        </div>
+      </div>
+
+    </section>
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+    <div class="copyright">
+    </div>
+    <div class="credits">
+      <!-- All the links in the footer should remain intact. -->
+      <!-- You can delete the links only if you purchased the pro version. -->
+
+
+
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/chart.js/chart.min.js"></script>
+  <script src="assets/vendor/echarts/echarts.min.js"></script>
+  <script src="assets/vendor/quill/quill.min.js"></script>
+  <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+  <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
