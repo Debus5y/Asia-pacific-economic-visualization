@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Interactive GDP Map - NiceAdmin Bootstrap Template</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i"
+        rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet">
+
+    <style>
+        #map {
+            height: 600px;
+        }
+
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="assets/img/logo.png" alt="">
+                <span class="d-none d-lg-block">Compare</span>
+            </a>
+
+        </div><!-- End Logo -->
+
+    </header><!-- End Header -->
+
+    <main id="main" class="main">
+        <section class="section">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Interactive GDP Map</h5>
+                            <select id="yearSelector">
+                                <!-- Years options will be added dynamically -->
+                            </select>
+                            <select id="indicatorSelector">
+                                <!-- Indicator options will be added dynamically -->
+                            </select>
+                            <div id="map"></div>
+
+                            <script>
+                                // Initialize the map
+                                const map = L.map('map').setView([20, 0], 2);
+
+                                // Add tile layer
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                }).addTo(map);
+
+                                // Load GeoJSON data
+                                let geoData;
+
+                                fetch("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson")
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        geoData = data;
+                                        initializeMap();
+                                    });
+
+                                function initializeMap() {
+                                    // Function to get and process data
+                                    d3.csv("../../data/economy-and-growth/economy-and-growth.csv").then(data => {
+                                        const years = [...new Set(data.map(d => d.Year))].sort((a, b) => a - b);
+                                        const indicators = [
+                                            "average_value_GDP (constant 2010 US$)",
+                                            "average_value_GDP per capita (constant 2010 US$)",
+                                            "average_value_GDP growth (annual %)",
+                                            "average_value_Gross domestic savings (% of GDP)",
+                                            "average_value_GNI (constant 2010 US$)"
+                                        ];
+
+                                        // Fill year selector
+                                        const yearSelector = d3.select("#yearSelector");
+                                        years.forEach(year => {
+                                            yearSelector.append("option").attr("value", year).text(year);
+                                        });
+
+                                        // Fill indicator selector
+                                        const indicatorSelector = d3.select("#indicatorSelector");
+                                        indicators.forEach(indicator => {
+                                            indicatorSelector.append("option").attr("value", indicator).text(indicator);
+                                        });
+
+                                        // Add legend control to the map
+                                        const legend = L.control({ position: 'bottomright' });
+
+                                        legend.onAdd = function (map) {
+                                            const div = L.DomUtil.create('div', 'info legend');
+                                            div.innerHTML = '<h4>GDP Indicator</h4>';
+                                            return div;
+                                        };
+
+                                        legend.addTo(map);
+
+                                        // Control to display data values
+                                        const info = L.control();
+
+                                        info.onAdd = function (map) {
+                                            this._div = L.DomUtil.create('div', 'info');
+                                            this.update();
+                                            return this._div;
+                                        };
+
+                                        info.update = function (props) {
+                                            this._div.innerHTML = '<h4>Country Data</h4>' + (props ?
+                                                '<b>' + props.name + '</b><br />' + props.value :
+                                                'Hover over a country');
+                                        };
+
+                                        info.addTo(map);
+
+                                        // Function to update the map
+                                        const updateMap = () => {
+                                            const selectedYear = yearSelector.property("value");
+                                            const selectedIndicator = indicatorSelector.property("value");
+
+                                            // Filter data for the selected year
+                                            const yearData = data.filter(d => d.Year === selectedYear);
+
+                                            // Asia-Pacific countries
+                                            const apacCountries = ["China", "Cambodia", "Indonesia", "Japan", "South Korea", "Malaysia", "New Zealand", "Australia", "Philippines", "Singapore", "Thailand", "Vietnam", "Mongolia"];
+
+                                            // Filter data for APAC countries
+                                            const apacData = yearData.filter(d => apacCountries.includes(d["Country Name"]));
+
+                                            // Create color scale
+                                            const colorScale = d3.scaleQuantile()
+                                                .domain(apacData.map(d => +d[selectedIndicator]))
+                                                .range(['#fff5f0', '#fee0d2', '#fcbba1', '#fc9272', '#fb6a4a', '#ef3b2c', '#cb181d', '#99000d']);
+
+                                            // Remove existing layers
+                                            map.eachLayer(layer => {
+                                                if (layer.options && layer.options.pane === 'overlayPane') {
+                                                    map.removeLayer(layer);
+                                                }
+                                            });
+
+                                            // Add new layer
+                                            L.geoJSON(geoData, {
+                                                style: feature => {
+                                                    const countryData = apacData.find(d => d["Country Name"] === feature.properties.ADMIN);
+                                                    const value = countryData ? +countryData[selectedIndicator] : 0;
+                                                    return {
+                                                        fillColor: colorScale(value),
+                                                        weight: 1,
+                                                        opacity: 1,
+                                                        color: 'white',
+                                                        fillOpacity: 0.7
+                                                    };
+                                                },
+                                                onEachFeature: (feature, layer) => {
+                                                    const countryData = apacData.find(d => d["Country Name"] === feature.properties.ADMIN);
+                                                    const value = countryData ? +countryData[selectedIndicator] : "No data";
+                                                    layer.on({
+                                                        mouseover: e => {
+                                                            const layer = e.target;
+                                                            layer.setStyle({
+                                                                weight: 3,
+                                                                color: '#666',
+                                                                fillOpacity: 0.9
+                                                            });
+                                                            layer.bringToFront();
+                                                            info.update({ name: feature.properties.ADMIN, value });
+                                                        },
+                                                        mouseout: e => {
+                                                            const layer = e.target;
+                                                            layer.setStyle({
+                                                                weight: 1,
+                                                                color: 'white',
+                                                                fillOpacity: 0.7
+                                                            });
+                                                            info.update();
+                                                        }
+                                                    });
+                                                }
+                                            }).addTo(map);
+                                        };
+
+                                        // Add event listeners
+                                        yearSelector.on("change", updateMap);
+                                        indicatorSelector.on("change", updateMap);
+
+                                        // Initial map update
+                                        updateMap();
+                                    });
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+        <div class="copyright">
+        </div>
+        <div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you purchased the pro version. -->
+
+
+
+        </div>
+    </footer><!-- End Footer -->
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.min.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

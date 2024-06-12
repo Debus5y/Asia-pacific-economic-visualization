@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Dashboard - NiceAdmin Bootstrap Template</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
+
+    <!-- PapaParse CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet">
+
+    <style>
+        .selector-container {
+            margin-bottom: 10px;
+        }
+
+        #dynamicImage {
+            width: 80%;
+        }
+    </style>
+    <script>
+        function updateImage() {
+            const category = document.getElementById('categorySelector').value;
+            const year = document.getElementById('yearSelector').value;
+            const imgElement = document.getElementById('dynamicImage');
+            imgElement.src = `../../data/Cluster/${category}-${year}.png`;
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            updateImage(); // Set default image
+        });
+    </script>
+
+    <!-- =======================================================
+  
+  
+  ======================================================== -->
+</head>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="assets/img/logo.png" alt="">
+                <span class="d-none d-lg-block">Compare</span>
+            </a>
+
+        </div><!-- End Logo -->
+
+    </header><!-- End Header -->
+    <main id="main" class="main">
+        <section class="section">
+            <div class="row">
+
+
+                
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">National economic indicators cluster visualization</h5>
+
+                            <!-- Selectors -->
+                            <div class="selector-container">
+                                <label for="categorySelector">选择类别:</label>
+                                <select id="categorySelector" onchange="updateImage()">
+                                    <option value="eco">eco</option>
+                                    <option value="fin">fin</option>
+                                    <option value="trade">trade</option>
+                                </select>
+                            </div>
+
+                            <div class="selector-container">
+                                <label for="yearSelector">选择年份:</label>
+                                <select id="yearSelector" onchange="updateImage()">
+                                    <option value="2015">2015</option>
+                                    <option value="2010">2010</option>
+                                    <option value="2005">2005</option>
+                                    <option value="2000">2000</option>
+                                    <option value="1995">1995</option>
+                                    <option value="ALL">all</option>
+                                </select>
+                            </div>
+
+                            <!-- Image -->
+                            <div id="imageContainer" style="text-align: center;">
+                                <img id="dynamicImage" src="../../data/Cluster/eco-2000.png" alt="描述图片">
+                            </div>
+
+                            <p id="test for line">The similarity and change of economic indicators in Asia-Pacific countries during 1995-2015 were analyzed by clustering method</p>
+                            <!-- End Image -->
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Share of Countries' Trade</h5>
+                            <div class="selector">
+                                <label for="year-selector">Select Year:</label>
+                                <input type="range" id="year-slider" min="1980" max="2020" step="1" value="2000" oninput="updateYearLabel(this.value)">
+                                <span id="year-label">2000</span>
+                                
+                                <label for="x-axis">Select X-axis:</label>
+                                <select id="x-axis">
+                                    <option value="average_value_Agricultural raw materials exports (% of merchandise exports)">Agricultural Exports %</option>
+                                    <option value="average_value_Commercial service exports (current US$)">Commercial Service Exports</option>
+                                    <option value="average_value_Commercial service imports (current US$)">Commercial Service Imports</option>
+                                    <option value="average_value_Food exports (% of merchandise exports)">Food Exports %</option>
+                                    <option value="average_value_Fuel exports (% of merchandise exports)">Fuel Exports %</option>
+                                    <option value="average_value_High-technology exports (% of manufactured exports)">High-tech Exports %</option>
+                                </select>
+                        
+                                <label for="y-axis">Select Y-axis:</label>
+                                <select id="y-axis">
+                                    <option value="average_value_Agricultural raw materials exports (% of merchandise exports)">Agricultural Exports %</option>
+                                    <option value="average_value_Commercial service exports (current US$)">Commercial Service Exports</option>
+                                    <option value="average_value_Commercial service imports (current US$)">Commercial Service Imports</option>
+                                    <option value="average_value_Food exports (% of merchandise exports)">Food Exports %</option>
+                                    <option value="average_value_Fuel exports (% of merchandise exports)">Fuel Exports %</option>
+                                    <option value="average_value_High-technology exports (% of manufactured exports)">High-tech Exports %</option>
+                                </select>
+                            </div>
+                        
+                            <div id="chart"></div>
+                        
+                            <script>
+                                let chart;
+                
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    Papa.parse("../../data/trade/trade.csv", {
+                                        download: true,
+                                        header: true,
+                                        complete: function (results) {
+                                            const data = results.data;
+                                            const countries = ["China", "Japan", "Malaysia", "Australia", "India", "Philippines", "New Zealand", "Singapore", "Thailand", "Vietnam", "Mongolia", "Indonesia", "Cambodia"];
+                                            
+                                            function filterDataByYear(year) {
+                                                return data.filter(item => countries.includes(item["Country Name"]) && item["Year"] == year);
+                                            }
+                
+                                            function extractChartData(filteredData, xKey, yKey) {
+                                                return filteredData.map(item => ({
+                                                    x: parseFloat(item[xKey]),
+                                                    y: parseFloat(item[yKey]),
+                                                    z: 10, // Bubble size (arbitrary)
+                                                    country: item["Country Name"]
+                                                }));
+                                            }
+                
+                                            function updateChart(year, xKey, yKey) {
+                                                const filteredData = filterDataByYear(year);
+                                                const seriesData = countries.map(country => ({
+                                                    name: country,
+                                                    data: extractChartData(filteredData.filter(item => item["Country Name"] === country), xKey, yKey)
+                                                }));
+                
+                                                const options = {
+                                                    chart: {
+                                                        type: 'bubble',
+                                                        height: 600,
+                                                        zoom: {
+                                                            enabled: true,
+                                                            type: 'xy'
+                                                        }
+                                                    },
+                                                    dataLabels: {
+                                                        enabled: false
+                                                    },
+                                                    series: seriesData,
+                                                    xaxis: {
+                                                        title: {
+                                                            text: xKey
+                                                        }
+                                                    },
+                                                    yaxis: {
+                                                        title: {
+                                                            text: yKey
+                                                        }
+                                                    },
+                                                    tooltip: {
+                                                        custom: function({series, seriesIndex, dataPointIndex, w}) {
+                                                            const data = w.globals.initialSeries[seriesIndex].data[dataPointIndex];
+                                                            return '<div class="arrow_box">' +
+                                                            '<span>' + data.country + '</span><br>' +
+                                                            '<span>' + xKey + ': ' + data.x + '</span><br>' +
+                                                            '<span>' + yKey + ': ' + data.y + '</span>' +
+                                                            '</div>';
+                                                        }
+                                                    },
+                                                    grid: {
+                                                        show: true,
+                                                        xaxis: {
+                                                            lines: {
+                                                                show: true
+                                                            }
+                                                        },
+                                                        yaxis: {
+                                                            lines: {
+                                                                show: true
+                                                            }
+                                                        }
+                                                    }
+                                                };
+                
+                                                if (chart) {
+                                                    chart.updateOptions(options);
+                                                } else {
+                                                    chart = new ApexCharts(document.querySelector("#chart"), options);
+                                                    chart.render();
+                                                }
+                                            }
+                
+                                            document.getElementById('x-axis').addEventListener('change', function () {
+                                                const year = document.getElementById('year-slider').value;
+                                                const xKey = this.value;
+                                                const yKey = document.getElementById('y-axis').value;
+                                                updateChart(year, xKey, yKey);
+                                            });
+                
+                                            document.getElementById('y-axis').addEventListener('change', function () {
+                                                const year = document.getElementById('year-slider').value;
+                                                const xKey = document.getElementById('x-axis').value;
+                                                const yKey = this.value;
+                                                updateChart(year, xKey, yKey);
+                                            });
+                
+                                            document.getElementById('year-slider').addEventListener('input', function () {
+                                                const year = this.value;
+                                                const xKey = document.getElementById('x-axis').value;
+                                                const yKey = document.getElementById('y-axis').value;
+                                                updateYearLabel(year);
+                                                updateChart(year, xKey, yKey);
+                                            });
+                
+                                            // Initial chart rendering
+                                            updateChart(2000, document.getElementById('x-axis').value, document.getElementById('y-axis').value);
+                                        }
+                                    });
+                                });
+                
+                                function updateYearLabel(year) {
+                                    document.getElementById('year-label').innerText = year;
+                                }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                
+
+                
+
+
+
+
+
+
+
+
+
+                
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Scoring of economic indicators</h5>
+
+                            <!-- Year Selection Dropdown -->
+                            <select id="yearSelect1" class="form-select mb-3">
+                                <option value="2020" selected>2020</option>
+                                <option value="2010">2010</option>
+                                <option value="2000">2000</option>
+                                <option value="1990">1990</option>
+                            </select>
+
+                            <!-- Country Selection Dropdown -->
+                            <select id="countrySelect" class="form-select mb-3">
+                                <option value="" disabled selected>Select Country</option>
+                                <option value="China">China</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Malaysia">Malaysia</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="South Korea">South Korea</option>
+                                <option value="Indonesia">Indonesia</option>
+                                <option value="Thailand">Thailand</option>
+                                <option value="Vietnam">Vietnam</option>
+                                <option value="Philippines">Philippines</option>
+                            </select>
+
+                            <!-- Additional Country Selection Dropdown -->
+                            <select id="additionalCountrySelect" class="form-select mb-3" style="display:none;">
+                                <option value="" selected>Do not display</option>
+                                <option value="China">China</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Malaysia">Malaysia</option>
+                                <option value="Singapore">Singapore</option>
+                                <option value="South Korea">South Korea</option>
+                                <option value="Indonesia">Indonesia</option>
+                                <option value="Thailand">Thailand</option>
+                                <option value="Vietnam">Vietnam</option>
+                                <option value="Philippines">Philippines</option>
+                            </select>
+
+                            <!-- Show/Hide Additional Country Select Button -->
+                            <button id="toggleAdditionalCountrySelect" class="btn btn-primary mb-3">Toggle Additional
+                                Country Select</button>
+
+                            <!-- Radar Chart -->
+                            <div id="radarChart" style="height: 600px;"></div>
+
+                            <script>
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    let chart;
+
+                                    const data = {
+                                        "2020": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 95,
+                                                "Australia": 80,
+                                                "Japan": 88,
+                                                "Malaysia": 70,
+                                                "Singapore": 75,
+                                                "South Korea": 85,
+                                                "Indonesia": 60,
+                                                "Thailand": 65,
+                                                "Vietnam": 55,
+                                                "Philippines": 50
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 80,
+                                                "Australia": 95,
+                                                "Japan": 92,
+                                                "Malaysia": 70,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
+                                                "Indonesia": 60,
+                                                "Thailand": 65,
+                                                "Vietnam": 55,
+                                                "Philippines": 50
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 75,
+                                                "Australia": 90,
+                                                "Japan": 85,
+                                                "Malaysia": 65,
+                                                "Singapore": 92,
+                                                "South Korea": 82,
+                                                "Indonesia": 55,
+                                                "Thailand": 60,
+                                                "Vietnam": 52,
+                                                "Philippines": 48
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 98,
+                                                "Australia": 80,
+                                                "Japan": 90,
+                                                "Malaysia": 70,
+                                                "Singapore": 85,
+                                                "South Korea": 82,
+                                                "Indonesia": 55,
+                                                "Thailand": 60,
+                                                "Vietnam": 52,
+                                                "Philippines": 48
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 82,
+                                                "Australia": 92,
+                                                "Japan": 95,
+                                                "Malaysia": 72,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
+                                                "Indonesia": 55,
+                                                "Thailand": 62,
+                                                "Vietnam": 52,
+                                                "Philippines": 48
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 85,
+                                                "Australia": 82,
+                                                "Japan": 95,
+                                                "Malaysia": 68,
+                                                "Singapore": 95,
+                                                "South Korea": 90,
+                                                "Indonesia": 50,
+                                                "Thailand": 55,
+                                                "Vietnam": 48,
+                                                "Philippines": 45
+                                            }
+                                        ],
+                                        "2010": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 85,
+                                                "Australia": 70,
+                                                "Japan": 82,
+                                                "Malaysia": 60,
+                                                "Singapore": 65,
+                                                "South Korea": 75,
+                                                "Indonesia": 50,
+                                                "Thailand": 55,
+                                                "Vietnam": 45,
+                                                "Philippines": 40
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 70,
+                                                "Australia": 90,
+                                                "Japan": 87,
+                                                "Malaysia": 58,
+                                                "Singapore": 85,
+                                                "South Korea": 80,
+                                                "Indonesia": 50,
+                                                "Thailand": 55,
+                                                "Vietnam": 45,
+                                                "Philippines": 40
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 65,
+                                                "Australia": 85,
+                                                "Japan": 80,
+                                                "Malaysia": 55,
+                                                "Singapore": 88,
+                                                "South Korea": 77,
+                                                "Indonesia": 45,
+                                                "Thailand": 50,
+                                                "Vietnam": 42,
+                                                "Philippines": 38
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 88,
+                                                "Australia": 70,
+                                                "Japan": 80,
+                                                "Malaysia": 58,
+                                                "Singapore": 85,
+                                                "South Korea": 77,
+                                                "Indonesia": 45,
+                                                "Thailand": 50,
+                                                "Vietnam": 42,
+                                                "Philippines": 38
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 72,
+                                                "Australia": 88,
+                                                "Japan": 85,
+                                                "Malaysia": 60,
+                                                "Singapore": 85,
+                                                "South Korea": 77,
+                                                "Indonesia": 45,
+                                                "Thailand": 52,
+                                                "Vietnam": 42,
+                                                "Philippines": 38
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 75,
+                                                "Australia": 75,
+                                                "Japan": 85,
+                                                "Malaysia": 55,
+                                                "Singapore": 90,
+                                                "South Korea": 85,
+                                                "Indonesia": 45,
+                                                "Thailand": 50,
+                                                "Vietnam": 42,
+                                                "Philippines": 38
+                                            }
+                                        ],
+                                        "2000": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 75,
+                                                "Australia": 60,
+                                                "Japan": 75,
+                                                "Malaysia": 50,
+                                                "Singapore": 55,
+                                                "South Korea": 65,
+                                                "Indonesia": 40,
+                                                "Thailand": 45,
+                                                "Vietnam": 35,
+                                                "Philippines": 30
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 60,
+                                                "Australia": 80,
+                                                "Japan": 77,
+                                                "Malaysia": 48,
+                                                "Singapore": 75,
+                                                "South Korea": 70,
+                                                "Indonesia": 40,
+                                                "Thailand": 45,
+                                                "Vietnam": 35,
+                                                "Philippines": 30
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 55,
+                                                "Australia": 75,
+                                                "Japan": 70,
+                                                "Malaysia": 45,
+                                                "Singapore": 78,
+                                                "South Korea": 67,
+                                                "Indonesia": 38,
+                                                "Thailand": 42,
+                                                "Vietnam": 32,
+                                                "Philippines": 28
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 78,
+                                                "Australia": 60,
+                                                "Japan": 70,
+                                                "Malaysia": 48,
+                                                "Singapore": 75,
+                                                "South Korea": 67,
+                                                "Indonesia": 38,
+                                                "Thailand": 42,
+                                                "Vietnam": 32,
+                                                "Philippines": 28
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 62,
+                                                "Australia": 78,
+                                                "Japan": 75,
+                                                "Malaysia": 50,
+                                                "Singapore": 75,
+                                                "South Korea": 67,
+                                                "Indonesia": 38,
+                                                "Thailand": 45,
+                                                "Vietnam": 32,
+                                                "Philippines": 28
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 65,
+                                                "Australia": 70,
+                                                "Japan": 75,
+                                                "Malaysia": 45,
+                                                "Singapore": 80,
+                                                "South Korea": 75,
+                                                "Indonesia": 32,
+                                                "Thailand": 35,
+                                                "Vietnam": 32,
+                                                "Philippines": 28
+                                            }
+                                        ],
+                                        "1990": [
+                                            {
+                                                "Indicator": "Economic Size",
+                                                "China": 65,
+                                                "Australia": 50,
+                                                "Japan": 65,
+                                                "Malaysia": 40,
+                                                "Singapore": 45,
+                                                "South Korea": 55,
+                                                "Indonesia": 30,
+                                                "Thailand": 35,
+                                                "Vietnam": 25,
+                                                "Philippines": 20
+                                            },
+                                            {
+                                                "Indicator": "National Quality",
+                                                "China": 50,
+                                                "Australia": 70,
+                                                "Japan": 67,
+                                                "Malaysia": 38,
+                                                "Singapore": 65,
+                                                "South Korea": 60,
+                                                "Indonesia": 30,
+                                                "Thailand": 35,
+                                                "Vietnam": 25,
+                                                "Philippines": 20
+                                            },
+                                            {
+                                                "Indicator": "Sustainable Development Expectations",
+                                                "China": 45,
+                                                "Australia": 65,
+                                                "Japan": 60,
+                                                "Malaysia": 35,
+                                                "Singapore": 68,
+                                                "South Korea": 57,
+                                                "Indonesia": 28,
+                                                "Thailand": 32,
+                                                "Vietnam": 22,
+                                                "Philippines": 18
+                                            },
+                                            {
+                                                "Indicator": "International Trade Influence",
+                                                "China": 68,
+                                                "Australia": 50,
+                                                "Japan": 60,
+                                                "Malaysia": 38,
+                                                "Singapore": 65,
+                                                "South Korea": 57,
+                                                "Indonesia": 28,
+                                                "Thailand": 32,
+                                                "Vietnam": 22,
+                                                "Philippines": 18
+                                            },
+                                            {
+                                                "Indicator": "Financial Market Stability",
+                                                "China": 52,
+                                                "Australia": 70,
+                                                "Japan": 65,
+                                                "Malaysia": 40,
+                                                "Singapore": 65,
+                                                "South Korea": 57,
+                                                "Indonesia": 28,
+                                                "Thailand": 35,
+                                                "Vietnam": 22,
+                                                "Philippines": 18
+                                            },
+                                            {
+                                                "Indicator": "Technological Advancement",
+                                                "China": 55,
+                                                "Australia": 60,
+                                                "Japan": 65,
+                                                "Malaysia": 35,
+                                                "Singapore": 68,
+                                                "South Korea": 60,
+                                                "Indonesia": 22,
+                                                "Thailand": 25,
+                                                "Vietnam": 22,
+                                                "Philippines": 18
+                                            }
+                                        ]
+                                    };
+
+
+                                    // Function to render radar chart
+                                    function renderRadarChart(year, country, additionalCountry) {
+                                        const categories = data[year].map(item => item.Indicator);
+
+                                        const countryData = data[year].map(item => item[country]);
+                                        const additionalCountryData = additionalCountry ? data[year].map(item => item[additionalCountry]) : null;
+
+                                        const series = [
+                                            {
+                                                name: `${country} Trade Rating`,
+                                                data: countryData
+                                            }
+                                        ];
+
+                                        if (additionalCountryData) {
+                                            series.push({
+                                                name: `${additionalCountry} Trade Rating`,
+                                                data: additionalCountryData
+                                            });
+                                        }
+
+                                        const options = {
+                                            series: series,
+                                            chart: {
+                                                height: 600,
+                                                type: 'radar'
+                                            },
+                                            xaxis: {
+                                                categories: categories
+                                            }
+                                        };
+
+                                        if (chart) {
+                                            chart.destroy();
+                                        }
+
+                                        chart = new ApexCharts(document.querySelector("#radarChart"), options);
+                                        chart.render();
+                                    }
+
+                                    const yearSelect1 = document.getElementById("yearSelect1");
+                                    const countrySelect = document.getElementById("countrySelect");
+                                    const additionalCountrySelect = document.getElementById("additionalCountrySelect");
+                                    const toggleAdditionalCountrySelect = document.getElementById("toggleAdditionalCountrySelect");
+
+                                    // Set default values
+                                    const defaultYear = "2020";
+                                    const defaultCountry = "Japan";
+                                    yearSelect1.value = defaultYear;
+                                    countrySelect.value = defaultCountry;
+                                    renderRadarChart(defaultYear, defaultCountry, null);
+
+                                    // Event listener for year selection
+                                    yearSelect1.addEventListener("change", () => {
+                                        const selectedYear = yearSelect1.value;
+                                        const selectedCountry = countrySelect.value;
+                                        const additionalCountry = additionalCountrySelect.value !== "Do not display" ? additionalCountrySelect.value : null;
+
+                                        renderRadarChart(selectedYear, selectedCountry, additionalCountry);
+                                    });
+
+                                    // Event listener for country selection
+                                    countrySelect.addEventListener("change", () => {
+                                        const selectedYear = yearSelect1.value;
+                                        const selectedCountry = countrySelect.value;
+                                        const additionalCountry = additionalCountrySelect.value !== "Do not display" ? additionalCountrySelect.value : null;
+
+                                        renderRadarChart(selectedYear, selectedCountry, additionalCountry);
+                                    });
+
+                                    // Event listener for additional country selection
+                                    additionalCountrySelect.addEventListener("change", () => {
+                                        const selectedYear = yearSelect1.value;
+                                        const selectedCountry = countrySelect.value;
+                                        const additionalCountry = additionalCountrySelect.value !== "Do not display" ? additionalCountrySelect.value : null;
+
+                                        renderRadarChart(selectedYear, selectedCountry, additionalCountry);
+                                    });
+
+                                    // Toggle the visibility of the additional country select
+                                    toggleAdditionalCountrySelect.addEventListener("click", () => {
+                                        if (additionalCountrySelect.style.display === "none") {
+                                            additionalCountrySelect.style.display = "block";
+                                        } else {
+                                            additionalCountrySelect.style.display = "none";
+                                        }
+                                    });
+                                });
+                            </script>
+                            <!-- End Radar Chart -->
+
+                            <p id="test for line">A radar map was constructed based on a scoring system to comprehensively compare the economic development and health of Asia-Pacific countries. The score was 0-100, the higher the score, the better the performance of the country</p>
+                            <!-- End Image -->
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Map visualization</h5>
+                
+                            <!-- Line Chart -->
+                            <div id="lineChart"></div>
+                
+                            <p id="test for line">View the economic data of different countries in different colors of the map, including GDP, GDP per capita, GDP growth rate, domestic savings ratio and gross National income</p>
+                
+                            <!-- Jump Button -->
+                            <button id="jumpButton" class="btn btn-primary">View map</button>
+                
+                            <!-- End Line Chart -->
+                
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                    document.getElementById('jumpButton').addEventListener('click', function() {
+                        window.location.href = 'map.html';
+                    });
+                </script>
+                
+
+
+
+
+
+
+
+
+
+
+        </section>
+
+    </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+        <div class="copyright">
+        </div>
+        <div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you purchased the pro version. -->
+
+
+
+        </div>
+    </footer><!-- End Footer -->
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.min.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

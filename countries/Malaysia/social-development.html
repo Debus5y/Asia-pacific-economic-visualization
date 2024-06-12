@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Social-development</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i"
+        rel="stylesheet">
+
+    <!-- PapaParse CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
+    <!-- ApexCharts CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+
+    <!-- Template Main CSS File -->
+    <link href="assets/css/style.css" rel="stylesheet">
+
+    <!-- =======================================================
+    * Template Name: NiceAdmin - v2.2.2
+    ======================================================== -->
+</head>
+
+
+<!-- Custom CSS -->
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: url('assets/img/cool-background.svg') no-repeat center center fixed;
+        background-size: cover;
+    }
+
+    .section {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+    }
+
+    .card-body {
+        padding: 40px;
+    }
+
+    .card-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    p {
+        font-family: 'Open Sans', sans-serif;
+        color: #2d2525;
+    }
+
+    .chart-container {
+        position: relative;
+        min-height: 500px;
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .year-selector {
+        margin-bottom: 10px;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+</style>
+
+<body>
+
+    <!-- ======= Header ======= -->
+    <header id="header" class="header fixed-top d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index.html" class="logo d-flex align-items-center">
+                <img src="assets/img/logo.png" alt="">
+                <span class="d-none d-lg-block">Social-development</span>
+            </a>
+        </div><!-- End Logo -->
+    </header><!-- End Header -->
+
+    <main id="main" class="main">
+        <section class="section">
+
+            <!-- Area Chart -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Area Chart - Labor Force Participation Rate</h5>
+                    <div id="areaChart"></div>
+                    <div id="slider-container">
+                        <input type="range" id="slider" min="0" max="100" value="0" step="1">
+                    </div>
+                    <p>This chart shows the labor force participation rate for males and females over the years. Use the
+                        slider to adjust the time range.</p>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            Papa.parse("../../data/social-development/social-development.csv", {
+                                download: true,
+                                header: true,
+                                complete: function (results) {
+                                    const data = results.data;
+                                    const MalaysiaData = data.filter(item => item["Country Name"] === "Malaysia");
+                                    const laborForceData = MalaysiaData.map(item => ({
+                                        year: parseInt(item["Year"]),
+                                        female: parseFloat(item["average_value_Labor force participation rate, female (% of female population ages 15-64) (modeled ILO estimate)"]),
+                                        male: parseFloat(item["average_value_Labor force participation rate, male (% of male population ages 15-64) (modeled ILO estimate)"])
+                                    })).sort((a, b) => a.year - b.year);
+                                    const years = laborForceData.map(item => item.year);
+                                    const femaleData = laborForceData.map(item => item.female);
+                                    const maleData = laborForceData.map(item => item.male);
+                                    let options = {
+                                        series: [{ name: 'Female Labor Force Participation', data: femaleData }, { name: 'Male Labor Force Participation', data: maleData }],
+                                        chart: { type: 'area', height: 350, zoom: { type: 'x', enabled: true, autoScaleYaxis: true } },
+                                        dataLabels: { enabled: false },
+                                        stroke: { curve: 'smooth' },
+                                        grid: { row: { colors: ['#f3f3f3', 'transparent'], opacity: 0.5 } },
+                                        xaxis: { categories: years, title: { text: 'Year' } },
+                                        yaxis: { title: { text: 'Participation Rate (%)' } },
+                                        tooltip: { shared: true, intersect: false, y: { formatter: function (val) { return val + "%"; } } }
+                                    };
+                                    const chart = new ApexCharts(document.querySelector("#areaChart"), options);
+                                    chart.render();
+                                    const slider = document.getElementById('slider');
+                                    slider.addEventListener('input', function () {
+                                        const sliderValue = parseInt(this.value);
+                                        const minIndex = Math.floor((sliderValue / 100) * (years.length - 1));
+                                        const filteredYears = years.slice(minIndex);
+                                        const filteredFemaleData = femaleData.slice(minIndex);
+                                        const filteredMaleData = maleData.slice(minIndex);
+                                        chart.updateSeries([{ name: 'Female Labor Force Participation', data: filteredFemaleData }, { name: 'Male Labor Force Participation', data: filteredMaleData }]);
+                                        chart.updateOptions({ xaxis: { categories: filteredYears } });
+                                    });
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            </div>
+
+            <!-- Combined Bar Charts - Male and Female Population -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Population Distribution</h5>
+
+                    <!-- Year Selection Button -->
+                    <div style="margin-bottom: 10px;">
+                        <label for="yearSelect">Select Year: </label>
+                        <select id="yearSelect">
+                            <!-- Add options dynamically from JavaScript -->
+                        </select>
+                    </div>
+
+                    <!-- Combined Population Chart -->
+                    <div id="combinedBarChart" class="echart" style="height: 600px; width: 100%;"></div>
+                    <p>This chart shows the population distribution by age group for males and females. Select a year to
+                        view the corresponding data.</p>
+                </div>
+            </div>
+            </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    Papa.parse("../../data/health/health.csv", {
+                        download: true,
+                        header: true,
+                        complete: function (results) {
+                            const data = results.data;
+                            const yearSelect = document.getElementById("yearSelect");
+
+                            // Populate year options dynamically
+                            const years = [...new Set(data.map(item => item["Year"]))];
+                            years.sort((a, b) => a - b);
+                            years.forEach(year => {
+                                const option = document.createElement("option");
+                                option.value = year;
+                                option.text = year;
+                                yearSelect.appendChild(option);
+                            });
+
+                            yearSelect.addEventListener("change", () => {
+                                const selectedYear = yearSelect.value;
+                                updateChart(selectedYear, data);
+                            });
+
+                            // Initialize chart with the first available year
+                            updateChart(years[0], data);
+                        }
+                    });
+
+                    function updateChart(year, data) {
+                        const MalaysiaData = data.filter(item => item["Country Name"] === "Malaysia" && item["Year"] === year);
+                        if (MalaysiaData.length === 0) {
+                            alert(`No data available for ${year}.`);
+                            return;
+                        }
+                        const ageGroups = ['0-4', '5-9', '10-14', '15-19', '20-24', '25-29', '30-34', '35-39', '40-44', '45-49', '50-54', '55-59', '60-64', '65-69', '70-74', '75-79', '80+'];
+                        const maleData = [
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 80 and above, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 75-79, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 70-74, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 65-69, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 60-64, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 55-59, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 50-54, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 45-49, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 40-44, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 35-39, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 30-34, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 25-29, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 20-24, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 15-19, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 10-14, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 5-9, male (% of male population)"]),
+                            -parseFloat(MalaysiaData[0]["average_value_Population ages 0-4, male (% of male population)"])
+                        ];
+                        const femaleData = [
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 80 and above, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 75-79, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 70-74, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 65-69, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 60-64, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 55-59, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 50-54, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 45-49, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 40-44, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 35-39, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 30-34, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 25-29, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 20-24, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 15-19, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 10-14, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 5-9, female (% of female population)"]),
+                            parseFloat(MalaysiaData[0]["average_value_Population ages 0-4, female (% of female population)"])
+                        ];
+
+                        const chartDom = document.getElementById('combinedBarChart');
+                        const myChart = echarts.init(chartDom);
+                        const option = {
+                            title: { text: `Population Distribution | ${year}`, left: 'center' },
+                            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                            legend: { data: ['Male Population', 'Female Population'], left: 'right' },
+                            grid: { left: '10%', right: '10%', bottom: '3%', containLabel: true },
+                            xAxis: [
+                                {
+                                    type: 'value',
+                                    axisLabel: { formatter: value => Math.abs(value) },
+                                    splitLine: { show: false }
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                    type: 'category',
+                                    axisTick: { show: false },
+                                    data: ageGroups
+                                }
+                            ],
+                            series: [
+                                {
+                                    name: 'Male Population',
+                                    type: 'bar',
+                                    itemStyle: { color: '#5470C6' },
+                                    data: maleData.reverse()
+                                },
+                                {
+                                    name: 'Female Population',
+                                    type: 'bar',
+                                    itemStyle: { color: '#91CC75' },
+                                    data: femaleData.reverse()
+                                }
+                            ]
+                        };
+                        myChart.setOption(option);
+                    }
+                });
+            </script>
+
+            <!-- Column Chart -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Column Chart - Intellectual Property Profits</h5>
+                    <div id="columnChart"></div>
+                    <div id="slider-container">
+                        <input type="range" id="slider" min="0" max="100" value="0" step="1">
+                    </div>
+                    <p>This chart shows the intellectual property profits (receipts minus payments) over the years. Use
+                        the slider to adjust the time range.</p>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            Papa.parse("../../data/science-and-technology/science-and-technology.csv", {
+                                download: true,
+                                header: true,
+                                complete: function (results) {
+                                    const data = results.data;
+                                    const MalaysiaData = data.filter(item => item["Country Name"] === "Malaysia");
+                                    const ipProfitData = MalaysiaData.map(item => ({
+                                        year: parseInt(item["Year"]),
+                                        profit: parseFloat(item["average_value_Charges for the use of intellectual property, receipts (BoP, current US$)"]) -
+                                            parseFloat(item["average_value_Charges for the use of intellectual property, payments (BoP, current US$)"])
+                                    })).sort((a, b) => a.year - b.year);
+                                    const years = ipProfitData.map(item => item.year);
+                                    const profitData = ipProfitData.map(item => item.profit);
+                                    let options = {
+                                        series: [{ name: 'Intellectual Property Profits', data: profitData }],
+                                        chart: { type: 'bar', height: 350, zoom: { type: 'x', enabled: true, autoScaleYaxis: true } },
+                                        dataLabels: { enabled: false },
+                                        plotOptions: { bar: { borderRadius: 10, dataLabels: { position: 'top' } } },
+                                        xaxis: { categories: years, title: { text: 'Year' } },
+                                        yaxis: { title: { text: 'Profit (US$)' } },
+                                        tooltip: { shared: true, intersect: false, y: { formatter: function (val) { return "$" + val.toLocaleString(); } } }
+                                    };
+                                    const chart = new ApexCharts(document.querySelector("#columnChart"), options);
+                                    chart.render();
+                                    const slider = document.getElementById('slider');
+                                    slider.addEventListener('input', function () {
+                                        const sliderValue = parseInt(this.value);
+                                        const minIndex = Math.floor((sliderValue / 100) * (years.length - 1));
+                                        const filteredYears = years.slice(minIndex);
+                                        const filteredProfitData = profitData.slice(minIndex);
+                                        chart.updateSeries([{ name: 'Intellectual Property Profits', data: filteredProfitData }]);
+                                        chart.updateOptions({ xaxis: { categories: filteredYears } });
+                                    });
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            </div>
+
+            <!-- Line Chart -->
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Line Chart - Aging Population</h5>
+                    <div id="lineChart"></div>
+                    <div id="slider-container">
+                        <input type="range" id="sliderLine" min="0" max="100" value="0" step="1">
+                    </div>
+                    <p>This chart shows the aging population (65 and older) as a percentage of the total population. Use
+                        the slider to adjust the time range.</p>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", () => {
+                            Papa.parse("../../data/education/education.csv", {
+                                download: true,
+                                header: true,
+                                complete: function (results) {
+                                    const data = results.data;
+                                    const MalaysiaData = data.filter(item => item["Country Name"] === "Malaysia");
+                                    const agingPopulationData = MalaysiaData.map(item => ({
+                                        year: parseInt(item["Year"]),
+                                        population0to14: parseFloat(item["average_value_Population ages 0-14 (% of total population)"]),
+                                        population15to64: parseFloat(item["average_value_Population ages 15-64 (% of total population)"])
+                                    })).sort((a, b) => a.year - b.year);
+                                    const years = agingPopulationData.map(item => item.year);
+                                    const agingPopulation65Plus = agingPopulationData.map(item => 100 - item.population0to14 - item.population15to64);
+                                    let options = {
+                                        series: [{ name: 'Population Ages 65+', data: agingPopulation65Plus }],
+                                        chart: { type: 'line', height: 350, zoom: { type: 'x', enabled: true, autoScaleYaxis: true } },
+                                        dataLabels: { enabled: false },
+                                        stroke: { curve: 'smooth' },
+                                        grid: { row: { colors: ['#f3f3f3', 'transparent'], opacity: 0.5 } },
+                                        xaxis: { categories: years, title: { text: 'Year' } },
+                                        yaxis: { title: { text: 'Population Ages 65+ (%)' }, labels: { formatter: function (val) { return Math.floor(val); } } },
+                                        tooltip: { shared: true, intersect: false, y: { formatter: function (val) { return Math.floor(val) + "%"; } } }
+                                    };
+                                    const chart = new ApexCharts(document.querySelector("#lineChart"), options);
+                                    chart.render();
+                                    const sliderLine = document.getElementById('sliderLine');
+                                    sliderLine.addEventListener('input', function () {
+                                        const sliderValue = parseInt(this.value);
+                                        const minIndex = Math.floor((sliderValue / 100) * (years.length - 1));
+                                        const filteredYears = years.slice(minIndex);
+                                        const filteredAgingPopulation65Plus = agingPopulation65Plus.slice(minIndex);
+                                        chart.updateSeries([{ name: 'Population Ages 65+', data: filteredAgingPopulation65Plus }]);
+                                        chart.updateOptions({ xaxis: { categories: filteredYears } });
+                                    });
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            </div>
+
+            </div>
+        </section>
+    </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+        <div class="copyright">
+        </div>
+        <div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you purchased the pro version. -->
+        </div>
+    </footer><!-- End Footer -->
+
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/chart.js/chart.min.js"></script>
+    <script src="assets/vendor/echarts/echarts.min.js"></script>
+    <script src="assets/vendor/quill/quill.min.js"></script>
+    <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- Template Main JS File -->
+    <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
